@@ -1,1096 +1,256 @@
 <!DOCTYPE html>
-<html lang="es" class="dark">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>BLANCO GMR // Reto Goliath 85.4 km</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Fonts: Inter & JetBrains Mono para telemetría -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700;800&display=swap" rel="stylesheet" />
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-            mono: ['JetBrains Mono', 'monospace'],
-          },
-          colors: {
-            carbon: {
-              950: '#07090d',
-              900: '#0b0d13',
-              850: '#10141d',
-              800: '#161b26',
-              700: '#1f2636',
-            },
-            forza: {
-              crimson: '#e11d48',
-              cyan: '#06b6d4',
-              gold: '#f59e0b',
-            }
-          }
-        }
-      }
-    };
-  </script>
-
+  <title>Reto Goliath 85.4 km — Tabla Oficial | Bravoz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,500;0,700;1,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-main: #0b0d13;
+      --bg-card: rgba(18, 22, 33, 0.92);
+      --bg-row: rgba(255, 255, 255, 0.03);
+      --bg-row-hover: rgba(255, 255, 255, 0.07);
+      --border-subtle: rgba(255, 255, 255, 0.09);
+      --accent-primary: #ff2a6d;
+      --accent-secondary: #05d9e8;
+      --gold: #ffd700;
+      --silver: #d1d5db;
+      --bronze: #cd7f32;
+      --win: #10b981;
+      --loss: #f43f5e;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      background-color: #0b0d13;
-      color: #f1f5f9;
       font-family: 'Inter', sans-serif;
-      background-image: 
-        radial-gradient(circle at 15% 0%, rgba(225, 29, 72, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 85% 10%, rgba(6, 182, 212, 0.07) 0%, transparent 40%);
+      background-color: var(--bg-main);
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(255, 42, 109, 0.14), transparent 38%),
+        radial-gradient(circle at 85% 80%, rgba(5, 217, 232, 0.12), transparent 40%);
+      color: var(--text-main);
       min-height: 100vh;
+      padding: 28px 16px 60px;
     }
 
-    /* Números tabulares estrictos para tiempos y telemetría */
-    .tabular-telemetry {
-      font-family: 'JetBrains Mono', monospace;
-      font-variant-numeric: tabular-nums;
-    }
-
-    /* Modo OBS Overlay: fondo transparente o semitransparente limpio */
     body.obs-mode {
-      background-color: transparent !important;
-      background-image: none !important;
-      padding: 0.75rem !important;
+      background: transparent !important;
+      padding: 12px;
     }
+
     body.obs-mode .hide-in-obs {
       display: none !important;
     }
-    body.obs-mode #obs-exit-bar {
-      display: flex !important;
-    }
-    body.obs-mode #leaderboard-container {
-      background-color: rgba(11, 13, 19, 0.88);
-      backdrop-filter: blur(12px);
-      border-color: rgba(255, 255, 255, 0.14);
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75);
+
+    body.obs-mode .board-container {
+      background: rgba(11, 13, 19, 0.88);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(5, 217, 232, 0.35);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65);
     }
 
-    /* Scrollbar sutil */
-    ::-webkit-scrollbar {
-      width: 8px;
-      height: 8px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0b0d13;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #1f2636;
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #e11d48;
-    }
-  </style>
-</head>
-<body class="antialiased selection:bg-forza-crimson selection:text-white">
-
-  <!-- Barra flotante discreta solo visible cuando se activa Modo OBS desde la web (no en ?obs=1 directo) -->
-  <div id="obs-exit-bar" class="hidden fixed bottom-3 right-3 z-50 items-center gap-2 bg-carbon-900/95 border border-white/15 px-3 py-1.5 rounded-full shadow-lg text-xs">
-    <span class="w-2 h-2 rounded-full bg-forza-crimson animate-pulse"></span>
-    <span class="text-slate-300 font-medium">Vista Overlay OBS</span>
-    <button onclick="toggleObsMode(false)" class="ml-1 px-2 py-0.5 rounded-full bg-white/10 hover:bg-forza-crimson text-white font-semibold transition cursor-pointer">
-      Salir
-    </button>
-  </div>
-
-  <!-- Notificación Toast (sin alert) -->
-  <div id="toast" class="fixed top-4 right-4 z-50 transform translate-y-[-120%] opacity-0 transition-all duration-300 pointer-events-none">
-    <div class="bg-carbon-800 border border-forza-cyan/40 text-slate-100 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium">
-      <span id="toast-icon" class="text-forza-cyan">✔</span>
-      <span id="toast-msg">Acción completada</span>
-    </div>
-  </div>
-
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
-
-    <!-- CABECERA PRINCIPAL -->
-    <header class="hide-in-obs mb-6 sm:mb-8">
-      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-white/10">
-        <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forza-crimson/15 border border-forza-crimson/30 text-forza-crimson text-xs font-bold tracking-wider uppercase mb-3">
-            <span class="w-2 h-2 rounded-full bg-forza-crimson animate-ping"></span>
-            Clasificación Oficial en Vivo
-          </div>
-          <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-white flex flex-wrap items-center gap-2">
-            <span>BLANCO GMR</span>
-            <span class="text-forza-crimson">//</span>
-            <span class="bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">RETO GOLIATH 85.4 KM</span>
-          </h1>
-          <p class="mt-2 text-xs sm:text-sm text-slate-400 flex flex-wrap items-center gap-x-2 gap-y-1 font-medium">
-            <span class="text-slate-200 font-semibold">1 Vuelta</span>
-            <span class="text-forza-crimson">•</span>
-            <span class="text-slate-200 font-semibold">Máx. 3 Rebobinados</span>
-            <span class="text-forza-crimson">•</span>
-            <span class="text-slate-200 font-semibold">Tabla Única Sin Clases</span>
-            <span class="text-forza-crimson">•</span>
-            <span class="text-forza-cyan font-semibold">Ganar = 1.º en Stream</span>
-          </p>
-        </div>
-
-        <!-- Selector de Temporada / Juego -->
-        <div class="flex flex-wrap items-center gap-2 bg-carbon-850 p-1.5 rounded-2xl border border-white/10 self-start lg:self-center">
-          <button id="tab-fh6" onclick="switchSeason('fh6')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer bg-forza-crimson text-white shadow-lg shadow-forza-crimson/25">
-            Forza Horizon 6 — Goliath (85.4 km)
-          </button>
-          <button id="tab-fh7" onclick="switchSeason('fh7')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-1.5">
-            <span>Forza Horizon 7</span>
-            <span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-forza-cyan/15 text-forza-cyan border border-forza-cyan/30">Pronto</span>
-          </button>
-        </div>
-      </div>
-    </header>
-
-    <!-- VISTA FORZA HORIZON 6 -->
-    <main id="view-fh6">
-
-      <!-- TARJETAS KPI EN TIEMPO REAL -->
-      <section class="hide-in-obs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <!-- KPI 1: Récord Absoluto -->
-        <div class="bg-carbon-850/90 border border-white/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-forza-gold/40 transition">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-forza-gold/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
-          <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-            <span>Récord Absoluto</span>
-            <span class="text-forza-gold text-base">🏆</span>
-          </div>
-          <div id="kpi-record-time" class="text-2xl sm:text-3xl font-extrabold text-forza-gold tabular-telemetry">--:--.---</div>
-          <div id="kpi-record-car" class="mt-1 text-xs text-slate-300 font-medium truncate">Sin registros</div>
-        </div>
-
-        <!-- KPI 2: Progreso del Reto -->
-        <div class="bg-carbon-850/90 border border-white/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden hover:border-forza-cyan/40 transition">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-forza-cyan/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
-          <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-            <span>Progreso del Reto</span>
-            <span class="text-forza-cyan text-base">🏁</span>
-          </div>
-          <div class="flex items-baseline gap-2">
-            <span id="kpi-completed" class="text-2xl sm:text-3xl font-extrabold text-white tabular-telemetry">0 / 18</span>
-            <span id="kpi-completed-pct" class="text-xs font-bold text-forza-cyan tabular-telemetry">(0%)</span>
-          </div>
-          <div class="w-full bg-carbon-950 h-1.5 rounded-full mt-2.5 overflow-hidden">
-            <div id="kpi-progress-bar" class="bg-gradient-to-r from-forza-crimson to-forza-cyan h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-          </div>
-        </div>
-
-        <!-- KPI 3: Tasa de Victoria en Stream -->
-        <div class="bg-carbon-850/90 border border-white/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden hover:border-emerald-500/40 transition">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
-          <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-            <span>Apuestas Stream (1.º)</span>
-            <span class="text-emerald-400 text-base">🎯</span>
-          </div>
-          <div class="flex items-baseline gap-2">
-            <span id="kpi-winrate" class="text-2xl sm:text-3xl font-extrabold text-white tabular-telemetry">0%</span>
-            <span id="kpi-winrecord" class="text-xs font-semibold text-slate-400">(0V - 0D)</span>
-          </div>
-          <div class="mt-1 text-xs text-slate-400 truncate">Victorias en 1.ª posición</div>
-        </div>
-
-        <!-- KPI 4: Tiempo Promedio -->
-        <div class="bg-carbon-850/90 border border-white/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden hover:border-forza-crimson/40 transition">
-          <div class="absolute top-0 right-0 w-24 h-24 bg-forza-crimson/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
-          <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
-            <span>Tiempo Promedio</span>
-            <span class="text-forza-crimson text-base">⏱️</span>
-          </div>
-          <div id="kpi-avg-time" class="text-2xl sm:text-3xl font-extrabold text-white tabular-telemetry">--:--.---</div>
-          <div class="mt-1 text-xs text-slate-400 truncate">Media en 85.4 km completados</div>
-        </div>
-      </section>
-
-      <!-- BARRA DE CONTROLES -->
-      <section class="hide-in-obs bg-carbon-850/80 border border-white/10 rounded-2xl p-3 sm:p-4 mb-6 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-        <!-- Buscador y Filtros -->
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
-          <div class="relative flex-1 max-w-md">
-            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
-            </svg>
-            <input
-              id="search-input"
-              type="text"
-              placeholder="Buscar coche o piloto (ej. Trueno, Jaison, Aston...)"
-              oninput="renderTable()"
-              class="w-full bg-carbon-950 border border-white/10 focus:border-forza-cyan rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition"
-            />
-          </div>
-
-          <!-- Filtros de Estado -->
-          <div class="inline-flex bg-carbon-950 p-1 rounded-xl border border-white/10 self-start sm:self-auto">
-            <button onclick="setStatusFilter('all')" id="filter-all" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-white/10 text-white">
-              Todos
-            </button>
-            <button onclick="setStatusFilter('completed')" id="filter-completed" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-slate-400 hover:text-white">
-              Completados
-            </button>
-            <button onclick="setStatusFilter('pending')" id="filter-pending" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-slate-400 hover:text-white">
-              Pendientes
-            </button>
-          </div>
-        </div>
-
-        <!-- Botones de Acción (OBS y Admin Local) -->
-        <div class="flex flex-wrap items-center gap-2.5">
-          <button onclick="toggleObsMode(true)" class="px-3.5 py-2.5 rounded-xl bg-carbon-800 hover:bg-carbon-700 border border-white/10 text-slate-200 text-xs font-bold flex items-center gap-2 transition cursor-pointer" title="Activa la vista limpia para Fuente de Navegador en OBS (?obs=1)">
-            <span class="w-2 h-2 rounded-full bg-forza-cyan"></span>
-            <span>Modo Overlay OBS</span>
-          </button>
-
-          <button onclick="openAdminModal()" class="px-4 py-2.5 rounded-xl bg-forza-crimson hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-forza-crimson/20 transition cursor-pointer">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span>Editar / Añadir Tiempo (Modo Admin Local)</span>
-          </button>
-        </div>
-      </section>
-
-      <!-- TABLA PRINCIPAL DE TELEMETRÍA -->
-      <section id="leaderboard-container" class="bg-carbon-850/90 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-        <!-- Mini cabecera compacta visible solo en Modo OBS -->
-        <div id="obs-table-header" class="hidden px-4 py-2.5 bg-carbon-950/90 border-b border-white/10 items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-forza-crimson"></span>
-            <span class="text-xs font-black tracking-wider uppercase text-white">BLANCO GMR // GOLIATH 85.4 KM (FH6)</span>
-          </div>
-          <span id="obs-counter" class="text-xs font-mono text-forza-cyan font-bold">2 / 18</span>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-carbon-950/80 border-b border-white/10 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                <th class="py-3.5 px-4 w-16 text-center">Pos</th>
-                <th class="py-3.5 px-4">Piloto / Chat</th>
-                <th class="py-3.5 px-4">Vehículo</th>
-                <th class="py-3.5 px-4">Clase / PI</th>
-                <th class="py-3.5 px-4 text-right">Tiempo (85.4 km)</th>
-                <th class="py-3.5 px-4 text-right">Dif. Líder</th>
-                <th class="py-3.5 px-4 text-center">Resultado Stream</th>
-                <th class="py-3.5 px-4 text-center hide-in-obs">Vídeo</th>
-              </tr>
-            </thead>
-            <tbody id="leaderboard-body" class="divide-y divide-white/5 text-sm">
-              <!-- Filas generadas dinámicamente por JS -->
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Estado vacío si el filtro no arroja resultados -->
-        <div id="empty-state" class="hidden py-12 px-4 text-center">
-          <p class="text-slate-400 text-sm font-medium">No se encontraron vehículos o pilotos con ese filtro.</p>
-          <button onclick="resetFilters()" class="mt-3 px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold text-white transition cursor-pointer">
-            Limpiar filtros
-          </button>
-        </div>
-      </section>
-
-      <!-- PIE DE PÁGINA CON TIP PARA OBS -->
-      <footer class="hide-in-obs mt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-        <div>
-          Tip para OBS Studio: añade <code class="px-1.5 py-0.5 rounded bg-carbon-800 text-forza-cyan font-mono">?obs=1</code> al final de tu enlace de GitHub Pages en la Fuente de Navegador.
-        </div>
-        <div>
-          Blanco GMR • Reto Goliath 85.4 km
-        </div>
-      </footer>
-    </main>
-
-    <!-- VISTA FORZA HORIZON 7 (PRÓXIMAMENTE) -->
-    <section id="view-fh7" class="hidden">
-      <div class="bg-carbon-850/90 border border-white/10 rounded-3xl p-8 sm:p-14 text-center max-w-3xl mx-auto my-8 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-forza-cyan/10 via-transparent to-forza-crimson/10 pointer-events-none"></div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forza-cyan/15 border border-forza-cyan/30 text-forza-cyan text-xs font-bold uppercase tracking-wider mb-4">
-          Próxima Temporada Preparada
-        </div>
-        <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
-          FORZA HORIZON 7 // GOLIATH
-        </h2>
-        <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed mb-6">
-          La infraestructura de telemetría de <strong class="text-white">Blanco GMR</strong> ya está lista para la siguiente entrega. Cuando se anuncie el nuevo mapa y circuito Goliath, activaremos aquí la nueva tabla oficial manteniendo intacto el historial de Forza Horizon 6.
-        </p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto text-left mb-8">
-          <div class="bg-carbon-950/80 border border-white/10 rounded-xl p-3.5">
-            <div class="text-[11px] font-bold uppercase text-slate-500">Reglas</div>
-            <div class="text-xs font-semibold text-slate-200 mt-0.5">Máx. 3 Rebobinados</div>
-          </div>
-          <div class="bg-carbon-950/80 border border-white/10 rounded-xl p-3.5">
-            <div class="text-[11px] font-bold uppercase text-slate-500">Formato</div>
-            <div class="text-xs font-semibold text-slate-200 mt-0.5">Tabla Única Sin Clases</div>
-          </div>
-          <div class="bg-carbon-950/80 border border-white/10 rounded-xl p-3.5">
-            <div class="text-[11px] font-bold uppercase text-slate-500">Apuestas Chat</div>
-            <div class="text-xs font-semibold text-forza-cyan mt-0.5">1.º = Victoria</div>
-          </div>
-        </div>
-        <button onclick="switchSeason('fh6')" class="px-6 py-3 rounded-xl bg-forza-crimson hover:bg-rose-500 text-white text-sm font-bold shadow-lg shadow-forza-crimson/25 transition cursor-pointer">
-          ← Volver a la Tabla Activa de FH6
-        </button>
-      </div>
-    </section>
-
-  </div>
-
-  <!-- MODAL DE MODO ADMIN LOCAL (PARA STREAM Y GITHUB PAGES) -->
-  <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-carbon-900 border border-white/15 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden my-8">
-      <!-- Cabecera Modal -->
-      <div class="px-6 py-4 bg-carbon-950 border-b border-white/10 flex items-center justify-between">
-        <div>
-          <h3 class="text-lg font-extrabold text-white flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-forza-crimson"></span>
-            <span>Editor Rápido en Vivo (Modo Admin Local)</span>
-          </h3>
-          <p class="text-xs text-slate-400 mt-0.5">Actualiza tiempos en directo y copia el código JSON para hacerlo permanente en GitHub Pages.</p>
-        </div>
-        <button onclick="closeAdminModal()" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition cursor-pointer">
-          ✕
-        </button>
-      </div>
-
-      <!-- Formulario -->
-      <div class="p-6 space-y-4">
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Seleccionar vehículo existente o crear nuevo</label>
-          <select id="admin-select-car" onchange="loadCarIntoForm()" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2.5 text-sm text-white outline-none">
-            <option value="__NEW__">+ Añadir nuevo vehículo a la lista...</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Piloto / Miembro del Chat</label>
-            <input id="admin-pilot" type="text" placeholder="Ej. Santi, Jaison, Blanco..." class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Vehículo</label>
-            <input id="admin-car" type="text" placeholder="Ej. Peel P50" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Clase / PI</label>
-            <input id="admin-pi" type="text" placeholder="Ej. S2 857 o D 100" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white font-mono outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Tiempo (MM:SS.mmm)</label>
-            <input id="admin-time" type="text" placeholder="Ej. 24:15.420 (vacío = pendiente)" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white font-mono outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Resultado en Stream</label>
-            <select id="admin-stream" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none">
-              <option value="pending">⏳ Pendiente</option>
-              <option value="win">✅ 1.º Victoria (Apuesta ganada)</option>
-              <option value="loss">❌ 2.º o peor (Apuesta perdida)</option>
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Enlace de YouTube (Opcional)</label>
-          <input id="admin-video" type="url" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none" />
-        </div>
-
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
-          <button onclick="resetLocalChanges()" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-rose-950/60 border border-white/10 hover:border-forza-crimson/40 text-xs font-semibold text-slate-400 hover:text-rose-300 transition cursor-pointer">
-            Restaurar datos originales del archivo
-          </button>
-
-          <button onclick="saveAdminEntry()" class="px-5 py-2.5 rounded-xl bg-forza-cyan hover:bg-cyan-400 text-carbon-950 text-xs font-black uppercase tracking-wider transition cursor-pointer">
-            Aplicar en Pantalla Ahora
-          </button>
-        </div>
-
-        <!-- Bloque JSON exportable para pegar en GitHub Pages -->
-        <div class="pt-4 border-t border-white/10">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-slate-300">Código <code class="text-forza-cyan">GOLIATH_DATA</code> listo para pegar en GitHub:</span>
-            <button onclick="copyJsonToClipboard()" class="px-3 py-1.5 rounded-lg bg-forza-crimson hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
-              <span>📋 Copiar código actualizado</span>
-            </button>
-          </div>
-          <textarea id="json-export-box" readonly rows="6" class="w-full bg-carbon-950 border border-white/10 rounded-xl p-3 text-xs font-mono text-emerald-400 outline-none resize-y"></textarea>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    /**
-     * ============================================================================
-     * DATOS OFICIALES DEL RETO GOLIATH 85.4 KM - BLANCO GMR
-     * ============================================================================
-     * INSTRUCCIONES PARA ACTUALIZAR EN GITHUB PAGES:
-     * 1. Puedes editar directamente esta lista GOLIATH_DATA o usar el botón
-     *    "Editar / Añadir Tiempo (Modo Admin Local)" en la web y darle a "Copiar".
-     * 2. Campos de cada coche:
-     *    - id: Número identificador único.
-     *    - pilot: Nombre del miembro del chat o piloto que propuso el coche.
-     *    - car: Nombre exacto del vehículo.
-     *    - pi: Clase y puntos de rendimiento (ej. "X 999", "S2 857", "D 100", o "" si aún no está tuneado).
-     *    - time: Tiempo en formato "MM:SS.mmm" (ej. "21:38.230") o null si está pendiente.
-     *    - streamResult: "win" (1.º Victoria), "loss" (2.º o peor), o "pending" (Pendiente).
-     *    - videoUrl: Enlace al vídeo de YouTube (opcional, dejar "" si aún no se subió).
-     * ============================================================================
-     */
-    const GOLIATH_DATA = [
-      {
-        id: 1,
-        pilot: "Iván",
-        car: "Aston Martin Valkyrie AMR PRO",
-        pi: "X 999",
-        time: "21:38.230",
-        streamResult: "win",
-        videoUrl: ""
-      },
-      {
-        id: 2,
-        pilot: "Santi",
-        car: "Toyota Trueno GT Apex",
-        pi: "S2 857",
-        time: "26:32.664",
-        streamResult: "loss",
-        videoUrl: "https://www.youtube.com/watch?v=a321vYAAFX4"
-      },
-      {
-        id: 3,
-        pilot: "Santi",
-        car: "Peel P50",
-        pi: "D 100",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 4,
-        pilot: "Blanco",
-        car: "Dodge Charger '72",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 5,
-        pilot: "Blanco",
-        car: "Chevrolet Camaro ZL1",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 6,
-        pilot: "Blanco",
-        car: "Ford Mustang Shelby GT500",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 7,
-        pilot: "Jaison",
-        car: "Porsche 911 GT3 R",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 8,
-        pilot: "Jaison",
-        car: "McLaren F1",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 9,
-        pilot: "Jaison",
-        car: "Dodge Challenger SRT Demon",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 10,
-        pilot: "Jaison",
-        car: "Pagani Zonda R Barchetta",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 11,
-        pilot: "Jaison",
-        car: "Koenigsegg Regera",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 12,
-        pilot: "Jaison",
-        car: "Pagani Zonda HP Barchetta",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 13,
-        pilot: "Jaison",
-        car: "Gumpert Apollo Enraged",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 14,
-        pilot: "Jaison",
-        car: "De Tomaso P900",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 15,
-        pilot: "Jaison",
-        car: "Pagani Imola",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 16,
-        pilot: "Helbert",
-        car: "Lamborghini Revuelto",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 17,
-        pilot: "Kate",
-        car: "Toyota Supra MK4",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      },
-      {
-        id: 18,
-        pilot: "Kate",
-        car: "Toyota GR GT Prototype",
-        pi: "",
-        time: null,
-        streamResult: "pending",
-        videoUrl: ""
-      }
-    ];
-
-    // Estado activo en memoria (con respaldo en localStorage para ediciones rápidas en directo)
-    const STORAGE_KEY = 'blanco_gmr_goliath_fh6_v1';
-    let entries = loadInitialData();
-    let currentStatusFilter = 'all';
-
-    function loadInitialData() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-        }
-      } catch (e) {
-        console.warn('No se pudo leer localStorage, usando datos base.', e);
-      }
-      return JSON.parse(JSON.stringify(GOLIATH_DATA));
+    .wrapper {
+      max-width: 1050px;
+      margin: 0 auto;
     }
 
-    // Convierte "MM:SS.mmm" o "HH:MM:SS.mmm" a milisegundos totales para ordenar y calcular diferencias
-    function parseTimeToMs(timeStr) {
-      if (!timeStr || typeof timeStr !== 'string') return null;
-      const clean = timeStr.trim();
-      const parts = clean.split(':');
-      if (parts.length === 2) {
-        const mins = parseInt(parts[0], 10);
-        const secs = parseFloat(parts[1]);
-        if (isNaN(mins) || isNaN(secs)) return null;
-        return Math.round((mins * 60 + secs) * 1000);
-      } else if (parts.length === 3) {
-        const hours = parseInt(parts[0], 10);
-        const mins = parseInt(parts[1], 10);
-        const secs = parseFloat(parts[2]);
-        if (isNaN(hours) || isNaN(mins) || isNaN(secs)) return null;
-        return Math.round((hours * 3600 + mins * 60 + secs) * 1000);
-      }
-      return null;
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 16px;
+      margin-bottom: 24px;
+      border-bottom: 2px solid var(--border-subtle);
+      padding-bottom: 18px;
     }
 
-    // Formatea milisegundos a "MM:SS.mmm" (o "HH:MM:SS.mmm" si pasa de 60 min, ej. Peel P50)
-    function formatMsToTime(ms, includePlus = false) {
-      if (ms === null || isNaN(ms)) return '—';
-      const prefix = includePlus ? '+' : '';
-      const totalSeconds = Math.floor(ms / 1000);
-      const millis = Math.floor(ms % 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-
-      const pad2 = (n) => String(n).padStart(2, '0');
-      const pad3 = (n) => String(n).padStart(3, '0');
-
-      if (hours > 0) {
-        return `${prefix}${hours}:${pad2(minutes)}:${pad2(seconds)}.${pad3(millis)}`;
-      }
-      return `${prefix}${pad2(minutes)}:${pad2(seconds)}.${pad3(millis)}`;
+    .title-group .tag {
+      display: inline-block;
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent-secondary);
+      background: rgba(5, 217, 232, 0.12);
+      border: 1px solid rgba(5, 217, 232, 0.3);
+      padding: 4px 10px;
+      border-radius: 4px;
+      margin-bottom: 8px;
     }
 
-    // Color distintivo por piloto / miembro del chat
-    function getPilotBadgeStyle(pilot) {
-      const p = (pilot || '').toLowerCase();
-      if (p.includes('iván') || p.includes('ivan')) return 'bg-amber-500/15 text-amber-300 border-amber-500/30';
-      if (p.includes('santi')) return 'bg-cyan-500/15 text-cyan-300 border-cyan-500/30';
-      if (p.includes('blanco')) return 'bg-rose-500/15 text-rose-300 border-rose-500/30';
-      if (p.includes('jaison')) return 'bg-purple-500/15 text-purple-300 border-purple-500/30';
-      if (p.includes('helbert')) return 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30';
-      if (p.includes('kate')) return 'bg-pink-500/15 text-pink-300 border-pink-500/30';
-      return 'bg-slate-500/15 text-slate-300 border-slate-500/30';
+    .title-group h1 {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: clamp(1.75rem, 4vw, 2.5rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      line-height: 1.05;
     }
 
-    // Color de clase de rendimiento de Forza Horizon
-    function getPiBadgeStyle(pi) {
-      if (!pi) return 'bg-white/5 text-slate-500 border-white/10';
-      const upper = pi.trim().toUpperCase();
-      if (upper.startsWith('X')) return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40';
-      if (upper.startsWith('S2')) return 'bg-blue-500/20 text-blue-300 border-blue-500/40';
-      if (upper.startsWith('S1')) return 'bg-purple-500/20 text-purple-300 border-purple-500/40';
-      if (upper.startsWith('A')) return 'bg-rose-500/20 text-rose-300 border-rose-500/40';
-      if (upper.startsWith('B')) return 'bg-orange-500/20 text-orange-300 border-orange-500/40';
-      if (upper.startsWith('C')) return 'bg-amber-500/20 text-amber-300 border-amber-500/40';
-      if (upper.startsWith('D')) return 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40';
-      return 'bg-white/10 text-slate-200 border-white/20';
+    .title-group h1 span {
+      color: var(--accent-primary);
     }
 
-    // Ordena todos los registros: primero los completados de menor a mayor tiempo, luego pendientes
-    function getSortedEntries() {
-      return [...entries]
-        .map(item => ({
-          ...item,
-          ms: parseTimeToMs(item.time)
-        }))
-        .sort((a, b) => {
-          if (a.ms !== null && b.ms !== null) return a.ms - b.ms;
-          if (a.ms !== null) return -1;
-          if (b.ms !== null) return 1;
-          return a.id - b.id;
-        });
+    .title-group p {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      margin-top: 6px;
     }
 
-    // Actualiza tarjetas KPI superiores
-    function updateKPIs(sorted) {
-      const completed = sorted.filter(item => item.ms !== null);
-      const total = sorted.length;
-      const completedCount = completed.length;
-
-      // Récord absoluto
-      if (completedCount > 0) {
-        const leader = completed[0];
-        document.getElementById('kpi-record-time').textContent = leader.time;
-        document.getElementById('kpi-record-car').textContent = `${leader.car} (${leader.pilot})`;
-      } else {
-        document.getElementById('kpi-record-time').textContent = '--:--.---';
-        document.getElementById('kpi-record-car').textContent = 'Sin tiempos aún';
-      }
-
-      // Progreso
-      const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
-      document.getElementById('kpi-completed').textContent = `${completedCount} / ${total}`;
-      document.getElementById('kpi-completed-pct').textContent = `(${pct}%)`;
-      document.getElementById('kpi-progress-bar').style.width = `${pct}%`;
-      document.getElementById('obs-counter').textContent = `${completedCount} / ${total} COMPLETADOS`;
-
-      // Tasa de victoria en Stream
-      const wins = sorted.filter(item => item.streamResult === 'win').length;
-      const losses = sorted.filter(item => item.streamResult === 'loss').length;
-      const streamPlayed = wins + losses;
-      const winRate = streamPlayed > 0 ? Math.round((wins / streamPlayed) * 100) : 0;
-      document.getElementById('kpi-winrate').textContent = `${winRate}%`;
-      document.getElementById('kpi-winrecord').textContent = `(${wins}V - ${losses}D)`;
-
-      // Tiempo promedio
-      if (completedCount > 0) {
-        const sumMs = completed.reduce((acc, cur) => acc + cur.ms, 0);
-        const avgMs = Math.round(sumMs / completedCount);
-        document.getElementById('kpi-avg-time').textContent = formatMsToTime(avgMs);
-      } else {
-        document.getElementById('kpi-avg-time').textContent = '--:--.---';
-      }
+    .game-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    // Renderiza la tabla aplicando búsqueda y filtros
-    function renderTable() {
-      const sorted = getSortedEntries();
-      updateKPIs(sorted);
-
-      const leaderMs = sorted.length > 0 && sorted[0].ms !== null ? sorted[0].ms : null;
-      const searchQuery = (document.getElementById('search-input').value || '').toLowerCase().trim();
-
-      // Asignamos posición real en el ranking general antes de filtrar
-      let rankCounter = 0;
-      const ranked = sorted.map(item => {
-        if (item.ms !== null) {
-          rankCounter += 1;
-          return { ...item, rank: rankCounter };
-        }
-        return { ...item, rank: null };
-      });
-
-      const filtered = ranked.filter(item => {
-        if (currentStatusFilter === 'completed' && item.ms === null) return false;
-        if (currentStatusFilter === 'pending' && item.ms !== null) return false;
-
-        if (searchQuery) {
-          const haystack = `${item.pilot} ${item.car} ${item.pi}`.toLowerCase();
-          if (!haystack.includes(searchQuery)) return false;
-        }
-        return true;
-      });
-
-      const tbody = document.getElementById('leaderboard-body');
-      const emptyState = document.getElementById('empty-state');
-
-      if (filtered.length === 0) {
-        tbody.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-
-      tbody.innerHTML = filtered.map(item => {
-        const isCompleted = item.ms !== null;
-
-        // Celda Posición / Medalla
-        let posHtml = `<span class="text-slate-600 font-mono text-xs">—</span>`;
-        let rowHighlight = 'hover:bg-white/[0.03]';
-        if (item.rank === 1) {
-          posHtml = `<span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-400/50 text-amber-300 font-black text-xs shadow-sm">1º</span>`;
-          rowHighlight = 'bg-amber-500/[0.04] hover:bg-amber-500/[0.07]';
-        } else if (item.rank === 2) {
-          posHtml = `<span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-slate-300/20 border border-slate-300/40 text-slate-200 font-black text-xs">2º</span>`;
-        } else if (item.rank === 3) {
-          posHtml = `<span class="inline-flex items-center justify-center w-7 h-7 rounded-lg bg-orange-600/20 border border-orange-500/40 text-orange-300 font-black text-xs">3º</span>`;
-        } else if (item.rank !== null) {
-          posHtml = `<span class="text-slate-300 font-mono font-bold text-xs">${item.rank}º</span>`;
-        }
-
-        // Celda Tiempo
-        const timeHtml = isCompleted
-          ? `<span class="tabular-telemetry font-bold text-sm sm:text-base ${item.rank === 1 ? 'text-forza-gold' : 'text-white'}">${escapeHtml(item.time)}</span>`
-          : `<span class="text-xs font-medium text-slate-500 italic">Pendiente</span>`;
-
-        // Celda Diferencia con el líder
-        let diffHtml = `<span class="text-slate-600 font-mono text-xs">—</span>`;
-        if (isCompleted && leaderMs !== null) {
-          if (item.rank === 1) {
-            diffHtml = `<span class="px-2 py-0.5 rounded bg-forza-gold/15 text-forza-gold font-mono text-[11px] font-bold">LÍDER</span>`;
-          } else {
-            const diffMs = item.ms - leaderMs;
-            diffHtml = `<span class="tabular-telemetry text-xs font-semibold text-rose-400">${formatMsToTime(diffMs, true)}</span>`;
-          }
-        }
-
-        // Celda Resultado Stream
-        let streamHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-slate-400 text-[11px] font-semibold">⏳ Pendiente</span>`;
-        if (item.streamResult === 'win') {
-          streamHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-emerald-300 text-[11px] font-bold">✅ 1.º Victoria</span>`;
-        } else if (item.streamResult === 'loss') {
-          streamHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-rose-500/15 border border-rose-500/35 text-rose-300 text-[11px] font-bold">❌ 2.º o peor</span>`;
-        }
-
-        // Celda Vídeo YouTube
-        const videoHtml = item.videoUrl
-          ? `<a href="${escapeHtml(item.videoUrl)}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-forza-crimson/20 hover:bg-forza-crimson text-rose-200 hover:text-white border border-forza-crimson/40 text-xs font-bold transition" title="Ver episodio en YouTube">
-              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
-              <span>Ver</span>
-            </a>`
-          : `<span class="text-slate-600 text-xs">—</span>`;
-
-        return `
-          <tr class="${rowHighlight} transition-colors">
-            <td class="py-3.5 px-4 text-center whitespace-nowrap">${posHtml}</td>
-            <td class="py-3.5 px-4 whitespace-nowrap">
-              <span class="inline-flex items-center px-2.5 py-0.5 rounded-md border text-xs font-bold ${getPilotBadgeStyle(item.pilot)}">
-                ${escapeHtml(item.pilot)}
-              </span>
-            </td>
-            <td class="py-3.5 px-4 font-bold text-slate-100 whitespace-nowrap">${escapeHtml(item.car)}</td>
-            <td class="py-3.5 px-4 whitespace-nowrap">
-              <span class="inline-flex items-center px-2 py-0.5 rounded border text-[11px] font-mono font-bold ${getPiBadgeStyle(item.pi)}">
-                ${item.pi ? escapeHtml(item.pi) : 'Sin PI'}
-              </span>
-            </td>
-            <td class="py-3.5 px-4 text-right whitespace-nowrap">${timeHtml}</td>
-            <td class="py-3.5 px-4 text-right whitespace-nowrap">${diffHtml}</td>
-            <td class="py-3.5 px-4 text-center whitespace-nowrap">${streamHtml}</td>
-            <td class="py-3.5 px-4 text-center whitespace-nowrap hide-in-obs">${videoHtml}</td>
-          </tr>
-        `;
-      }).join('');
+    .tab-btn {
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      padding: 9px 16px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s ease;
     }
 
-    function escapeHtml(str) {
-      if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
+    .tab-btn:hover {
+      border-color: var(--accent-secondary);
+      color: var(--text-main);
     }
 
-    // Filtros de estado
-    function setStatusFilter(status) {
-      currentStatusFilter = status;
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('bg-white/10', 'text-white');
-        btn.classList.add('text-slate-400');
-      });
-      const activeBtn = document.getElementById(`filter-${status}`);
-      if (activeBtn) {
-        activeBtn.classList.add('bg-white/10', 'text-white');
-        activeBtn.classList.remove('text-slate-400');
-      }
-      renderTable();
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--accent-primary), #c9184a);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(255, 42, 109, 0.35);
     }
 
-    function resetFilters() {
-      document.getElementById('search-input').value = '';
-      setStatusFilter('all');
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
-    // Selector de Temporada FH6 / FH7
-    function switchSeason(season) {
-      const viewFh6 = document.getElementById('view-fh6');
-      const viewFh7 = document.getElementById('view-fh7');
-      const tabFh6 = document.getElementById('tab-fh6');
-      const tabFh7 = document.getElementById('tab-fh7');
-
-      if (season === 'fh6') {
-        viewFh6.classList.remove('hidden');
-        viewFh7.classList.add('hidden');
-        tabFh6.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer bg-forza-crimson text-white shadow-lg shadow-forza-crimson/25';
-        tabFh7.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-1.5';
-      } else {
-        viewFh6.classList.add('hidden');
-        viewFh7.classList.remove('hidden');
-        tabFh7.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer bg-forza-cyan text-carbon-950 shadow-lg shadow-forza-cyan/25 flex items-center gap-1.5';
-        tabFh6.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5';
-      }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 14px 16px;
     }
 
-    // Modo Overlay OBS
-    function toggleObsMode(enable, fromUrl = false) {
-      const body = document.body;
-      const obsHeader = document.getElementById('obs-table-header');
-      const exitBar = document.getElementById('obs-exit-bar');
-
-      if (enable) {
-        body.classList.add('obs-mode');
-        obsHeader.classList.remove('hidden');
-        obsHeader.classList.add('flex');
-        if (fromUrl) {
-          exitBar.style.display = 'none';
-        }
-      } else {
-        body.classList.remove('obs-mode');
-        obsHeader.classList.add('hidden');
-        obsHeader.classList.remove('flex');
-        exitBar.style.display = 'none';
-      }
+    .stat-card .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
     }
 
-    // =========================================================================
-    // FUNCIONES DEL MODAL DE ADMIN LOCAL
-    // =========================================================================
-    function openAdminModal() {
-      populateAdminSelect();
-      updateJsonExportBox();
-      document.getElementById('admin-modal').classList.remove('hidden');
+    .stat-card .value {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-main);
     }
 
-    function closeAdminModal() {
-      document.getElementById('admin-modal').classList.add('hidden');
+    .stat-card .value.highlight {
+      color: var(--gold);
     }
 
-    function populateAdminSelect() {
-      const select = document.getElementById('admin-select-car');
-      const currentVal = select.value;
-      select.innerHTML = `<option value="__NEW__">+ Añadir nuevo vehículo a la lista...</option>`;
-      entries.forEach(item => {
-        const statusTag = item.time ? `[${item.time}]` : '[Pendiente]';
-        const opt = document.createElement('option');
-        opt.value = String(item.id);
-        opt.textContent = `${item.pilot} — ${item.car} ${statusTag}`;
-        select.appendChild(opt);
-      });
-      if ([...select.options].some(o => o.value === currentVal)) {
-        select.value = currentVal;
-      }
-      loadCarIntoForm();
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
-    function loadCarIntoForm() {
-      const val = document.getElementById('admin-select-car').value;
-      if (val === '__NEW__') {
-        document.getElementById('admin-pilot').value = '';
-        document.getElementById('admin-car').value = '';
-        document.getElementById('admin-pi').value = '';
-        document.getElementById('admin-time').value = '';
-        document.getElementById('admin-stream').value = 'pending';
-        document.getElementById('admin-video').value = '';
-        return;
-      }
-      const item = entries.find(e => String(e.id) === val);
-      if (item) {
-        document.getElementById('admin-pilot').value = item.pilot || '';
-        document.getElementById('admin-car').value = item.car || '';
-        document.getElementById('admin-pi').value = item.pi || '';
-        document.getElementById('admin-time').value = item.time || '';
-        document.getElementById('admin-stream').value = item.streamResult || 'pending';
-        document.getElementById('admin-video').value = item.videoUrl || '';
-      }
+    .search-box {
+      flex: 1;
+      min-width: 220px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-main);
+      font-size: 0.9rem;
+      outline: none;
     }
 
-    function saveAdminEntry() {
-      const val = document.getElementById('admin-select-car').value;
-      const pilot = document.getElementById('admin-pilot').value.trim();
-      const car = document.getElementById('admin-car').value.trim();
-      const pi = document.getElementById('admin-pi').value.trim();
-      const rawTime = document.getElementById('admin-time').value.trim();
-      const streamResult = document.getElementById('admin-stream').value;
-      const videoUrl = document.getElementById('admin-video').value.trim();
-
-      if (!pilot || !car) {
-        showToast('Escribe al menos el piloto y el nombre del coche.', '⚠️');
-        return;
-      }
-
-      if (rawTime && parseTimeToMs(rawTime) === null) {
-        showToast('Formato de tiempo inválido. Usa MM:SS.mmm (ej. 24:10.500)', '⚠️');
-        return;
-      }
-
-      const cleanTime = rawTime ? rawTime : null;
-
-      if (val === '__NEW__') {
-        const maxId = entries.reduce((max, item) => Math.max(max, item.id), 0);
-        entries.push({
-          id: maxId + 1,
-          pilot,
-          car,
-          pi,
-          time: cleanTime,
-          streamResult,
-          videoUrl
-        });
-      } else {
-        const idx = entries.findIndex(e => String(e.id) === val);
-        if (idx !== -1) {
-          entries[idx] = {
-            ...entries[idx],
-            pilot,
-            car,
-            pi,
-            time: cleanTime,
-            streamResult,
-            videoUrl
-          };
-        }
-      }
-
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-      } catch (e) {
-        console.warn('No se pudo guardar en localStorage.', e);
-      }
-
-      populateAdminSelect();
-      updateJsonExportBox();
-      renderTable();
-      showToast('Tabla actualizada en vivo ✔', '🏁');
+    .search-box:focus {
+      border-color: var(--accent-secondary);
     }
 
-    function resetLocalChanges() {
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {}
-      entries = JSON.parse(JSON.stringify(GOLIATH_DATA));
-      populateAdminSelect();
-      updateJsonExportBox();
-      renderTable();
-      showToast('Datos restaurados a la versión original del código.', '🔄');
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
     }
 
-    function updateJsonExportBox() {
-      const formatted = `const GOLIATH_DATA = ${JSON.stringify(entries, null, 2)};`;
-      document.getElementById('json-export-box').value = formatted;
+    .btn-small {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 9px 13px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
     }
 
-    function copyJsonToClipboard() {
-      const box = document.getElementById('json-export-box');
-      box.select();
-      box.setSelectionRange(0, 99999);
-      try {
-        document.execCommand('copy');
-        showToast('Código copiado. Pégalo en index.html en GitHub Pages.', '📋');
-      } catch (err) {
-        showToast('Selecciona el cuadro y pulsa Ctrl+C para copiar.', 'ℹ️');
-      }
+    .btn-small:hover, .btn-small.active {
+      border-color: var(--accent-secondary);
+      background: rgba(5, 217, 232, 0.14);
     }
 
-    function showToast(message, icon = '✔') {
-      const toast = document.getElementById('toast');
-      document.getElementById('toast-msg').textContent = message;
-      document.getElementById('toast-icon').textContent = icon;
-      toast.classList.remove('translate-y-[-120%]', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-
-      clearTimeout(window.__toastTimer);
-      window.__toastTimer = setTimeout(() => {
-        toast.classList.add('translate-y-[-120%]', 'opacity-0');
-        toast.classList.remove('translate-y-0', 'opacity-100');
-      }, 3200);
+    .board-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      overflow-x: auto;
+      box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
     }
 
-    // Inicialización al cargar la página
-    window.addEventListener('DOMContentLoaded', () => {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('obs') === '1') {
-        toggleObsMode(true, true);
-      }
-      renderTable();
-    });
-  </script>
-</body>
-</html>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      min-width: 650px;
+    }
+
+    thead th {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(0, 0, 0, 0.25);
+    }
+
+    tbody tr {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      background: var(--bg-row);
+      transition: background 0.15s ease;
+    }
+
+    tbody tr:hover {
+      background: var(--bg-row-hover);
+    }
+
+    tbody tr.rank-1 { background: linear-gradient(90deg, rgba(255
