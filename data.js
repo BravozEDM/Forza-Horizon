@@ -1,12 +1,12 @@
 const GOLIATH_DATA = [
   {
-    id: 1,
-    pilot: "Iván",
-    car: "Aston Martin Valkyrie AMR PRO",
-    time: null,
-    streamResult: "pending",
-    finishPos: null,
-    videoUrl: ""
+    "id": 1,
+    "pilot": "Iván",
+    "car": "Aston Martin Valkyrie AMR PRO",
+    "time": "20:50.528",
+    "streamResult": "win",
+    "finishPos": 1,
+    "videoUrl": ""
   },
   {
     id: 2,
