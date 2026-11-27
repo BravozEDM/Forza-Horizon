@@ -1,5 +1,5 @@
 const ADMIN_SECRET_KEY = 'gmr2026';
-const STORAGE_KEY = 'blanco_gmr_goliath_fh6_v5';
+const STORAGE_KEY = 'blanco_gmr_goliath_fh6_v6';
 
 let entries = loadInitialData();
 let currentStatusFilter = 'all';
@@ -81,7 +81,6 @@ function getSortedEntries() {
 
 function updateKPIs(sorted) {
   const completed = sorted.filter(item => item.ms !== null);
-  const total = sorted.length;
   const completedCount = completed.length;
 
   if (completedCount > 0) {
@@ -92,18 +91,6 @@ function updateKPIs(sorted) {
     document.getElementById('kpi-record-time').textContent = '--:--.---';
     document.getElementById('kpi-record-car').textContent = 'Sin registros';
   }
-
-  const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
-  document.getElementById('kpi-completed').textContent = `${completedCount} / ${total}`;
-  document.getElementById('kpi-completed-pct').textContent = `(${pct}%)`;
-  document.getElementById('kpi-progress-bar').style.width = `${pct}%`;
-
-  const wins = sorted.filter(item => item.streamResult === 'win').length;
-  const losses = sorted.filter(item => item.streamResult === 'loss').length;
-  const streamPlayed = wins + losses;
-  const winRate = streamPlayed > 0 ? Math.round((wins / streamPlayed) * 100) : 0;
-  document.getElementById('kpi-winrate').textContent = `${winRate}%`;
-  document.getElementById('kpi-winrecord').textContent = `(${wins}V - ${losses}D)`;
 
   if (completedCount > 0) {
     const sumMs = completed.reduce((acc, cur) => acc + cur.ms, 0);
