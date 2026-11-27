@@ -160,5 +160,14 @@ const GOLIATH_DATA = [
     "streamResult": "pending",
     "finishPos": null,
     "videoUrl": ""
+  },
+  {
+    "id": 19,
+    "pilot": "Alexis",
+    "car": "Audi RS 4 2006",
+    "time": null,
+    "streamResult": "pending",
+    "finishPos": null,
+    "videoUrl": ""
   }
 ];
