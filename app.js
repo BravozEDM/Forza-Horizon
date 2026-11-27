@@ -81,6 +81,7 @@ function getSortedEntries() {
 
 function updateKPIs(sorted) {
   const completed = sorted.filter(item => item.ms !== null);
+  const totalCars = sorted.length;
 
   if (completed.length > 0) {
     const best = completed[0];
@@ -98,6 +99,10 @@ function updateKPIs(sorted) {
     document.getElementById('kpi-worst-time').textContent = '--:--.---';
     document.getElementById('kpi-worst-car').textContent = 'Sin registros';
   }
+
+  document.getElementById('kpi-total-cars').textContent = String(totalCars);
+  document.getElementById('kpi-total-cars-sub').textContent =
+    `${completed.length} con tiempo • ${totalCars - completed.length} pendientes`;
 }
 
 function renderTable() {
