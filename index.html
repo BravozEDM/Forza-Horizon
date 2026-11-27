@@ -39,6 +39,13 @@
 </head>
 <body class="antialiased selection:bg-forza-crimson selection:text-white">
 
+  <div id="toast" class="fixed top-4 right-4 z-50 transform translate-y-[-120%] opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-carbon-800 border border-forza-cyan/40 text-slate-100 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium">
+      <span id="toast-icon" class="text-forza-cyan">✔</span>
+      <span id="toast-msg">Acción completada</span>
+    </div>
+  </div>
+
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
     <header class="mb-6 sm:mb-8">
@@ -60,10 +67,9 @@
           </p>
         </div>
 
-        <div class="flex flex-wrap items-center gap-2 bg-carbon-850 p-1.5 rounded-2xl border border-white/10 self-start lg:self-center">
-          <span class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-forza-crimson text-white shadow-lg shadow-forza-crimson/25">
-            Forza Horizon 6 — Goliath (85.4 km)
-          </span>
+        <div class="flex flex-col sm:items-end gap-2 self-start lg:self-center">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Sígueme en mis redes</span>
+          <div id="social-links" class="flex flex-wrap items-center gap-2"></div>
         </div>
       </div>
     </header>
@@ -184,7 +190,102 @@
 
   </div>
 
+  <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+    <div class="bg-carbon-900 border border-white/15 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden my-8">
+      <div class="px-6 py-4 bg-carbon-950 border-b border-white/10 flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-extrabold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-forza-crimson"></span>
+            <span>Editor Rápido de Tiempos</span>
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">Aplica el cambio y copia el bloque para pegarlo en <code class="text-forza-cyan">data.js</code>.</p>
+        </div>
+        <button onclick="closeAdminModal()" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition cursor-pointer">
+          ✕
+        </button>
+      </div>
+
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Seleccionar vehículo existente o crear nuevo</label>
+          <select id="admin-select-car" onchange="loadCarIntoForm()" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2.5 text-sm text-white outline-none">
+            <option value="__NEW__">+ Añadir nuevo vehículo a la lista...</option>
+          </select>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Piloto / Miembro del Chat</label>
+            <input id="admin-pilot" type="text" placeholder="Ej. Santi, Jaison, Blanco..." class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Vehículo</label>
+            <input id="admin-car" type="text" placeholder="Ej. Peel P50" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none" />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Tiempo (MM:SS.mmm)</label>
+            <input id="admin-time" type="text" placeholder="Ej. 24:15.420 (vacío = pendiente)" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white font-mono outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Resultado en Stream</label>
+            <select id="admin-stream" onchange="toggleFinishPosInput()" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none">
+              <option value="pending">⏳ Pendiente</option>
+              <option value="win">✅ 1.º Victoria</option>
+              <option value="loss">❌ No ganó (Indicar puesto)</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="admin-pos-wrapper" class="hidden">
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Puesto en el que llegaste</label>
+          <select id="admin-finish-pos" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none">
+            <option value="2">2.º puesto</option>
+            <option value="3">3.º puesto</option>
+            <option value="4">4.º puesto</option>
+            <option value="5">5.º puesto</option>
+            <option value="6">6.º puesto</option>
+            <option value="7">7.º puesto</option>
+            <option value="8">8.º puesto</option>
+            <option value="9">9.º puesto</option>
+            <option value="10">10.º puesto</option>
+            <option value="11">11.º puesto</option>
+            <option value="12">12.º puesto</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Enlace de YouTube (Opcional)</label>
+          <input id="admin-video" type="url" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none" />
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
+          <button onclick="resetLocalChanges()" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-rose-950/60 border border-white/10 hover:border-forza-crimson/40 text-xs font-semibold text-slate-400 hover:text-rose-300 transition cursor-pointer">
+            Restaurar datos originales
+          </button>
+
+          <button onclick="saveAdminEntry()" class="px-5 py-2.5 rounded-xl bg-forza-cyan hover:bg-cyan-400 text-carbon-950 text-xs font-black uppercase tracking-wider transition cursor-pointer">
+            Aplicar Ahora
+          </button>
+        </div>
+
+        <div class="pt-4 border-t border-white/10">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-300">Copiar para <code class="text-forza-cyan">data.js</code>:</span>
+            <button onclick="copyJsonToClipboard()" class="px-3 py-1.5 rounded-lg bg-forza-crimson hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
+              <span>📋 Copiar código</span>
+            </button>
+          </div>
+          <textarea id="json-export-box" readonly rows="6" class="w-full bg-carbon-950 border border-white/10 rounded-xl p-3 text-xs font-mono text-emerald-400 outline-none resize-y"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="data.js"></script>
+  <script src="social.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
