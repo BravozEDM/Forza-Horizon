@@ -1,5 +1,5 @@
 const ADMIN_SECRET_KEY = 'gmr2026';
-const STORAGE_KEY = 'blanco_gmr_goliath_fh6_v6';
+const STORAGE_KEY = 'blanco_gmr_goliath_fh6_v7';
 
 let entries = loadInitialData();
 let currentStatusFilter = 'all';
@@ -81,23 +81,22 @@ function getSortedEntries() {
 
 function updateKPIs(sorted) {
   const completed = sorted.filter(item => item.ms !== null);
-  const completedCount = completed.length;
 
-  if (completedCount > 0) {
-    const leader = completed[0];
-    document.getElementById('kpi-record-time').textContent = leader.time;
-    document.getElementById('kpi-record-car').textContent = `${leader.car} (${leader.pilot})`;
-  } else {
-    document.getElementById('kpi-record-time').textContent = '--:--.---';
-    document.getElementById('kpi-record-car').textContent = 'Sin registros';
-  }
+  if (completed.length > 0) {
+    const best = completed[0];
+    const worst = completed[completed.length - 1];
 
-  if (completedCount > 0) {
-    const sumMs = completed.reduce((acc, cur) => acc + cur.ms, 0);
-    const avgMs = Math.round(sumMs / completedCount);
-    document.getElementById('kpi-avg-time').textContent = formatMsToTime(avgMs);
+    document.getElementById('kpi-best-time').textContent = best.time;
+    document.getElementById('kpi-best-car').textContent = `${best.car} (${best.pilot})`;
+
+    document.getElementById('kpi-worst-time').textContent = worst.time;
+    document.getElementById('kpi-worst-car').textContent = `${worst.car} (${worst.pilot})`;
   } else {
-    document.getElementById('kpi-avg-time').textContent = '--:--.---';
+    document.getElementById('kpi-best-time').textContent = '--:--.---';
+    document.getElementById('kpi-best-car').textContent = 'Sin registros';
+
+    document.getElementById('kpi-worst-time').textContent = '--:--.---';
+    document.getElementById('kpi-worst-car').textContent = 'Sin registros';
   }
 }
 
