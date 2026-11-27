@@ -253,4 +253,415 @@
       background: var(--bg-row-hover);
     }
 
-    tbody tr.rank-1 { background: linear-gradient(90deg, rgba(255
+    tbody tr.rank-1 { background: linear-gradient(90deg, rgba(255, 215, 0, 0.13), transparent 65%); }
+    tbody tr.rank-2 { background: linear-gradient(90deg, rgba(209, 213, 219, 0.09), transparent 65%); }
+    tbody tr.rank-3 { background: linear-gradient(90deg, rgba(205, 127, 50, 0.09), transparent 65%); }
+
+    td {
+      padding: 13px 16px;
+      font-size: 0.94rem;
+      vertical-align: middle;
+    }
+
+    .pos-badge {
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 28px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .rank-1 .pos-badge { background: rgba(255, 215, 0, 0.22); color: var(--gold); border: 1px solid rgba(255, 215, 0, 0.45); }
+    .rank-2 .pos-badge { background: rgba(209, 213, 219, 0.2); color: var(--silver); border: 1px solid rgba(209, 213, 219, 0.4); }
+    .rank-3 .pos-badge { background: rgba(205, 127, 50, 0.2); color: var(--bronze); border: 1px solid rgba(205, 127, 50, 0.4); }
+
+    .pilot-name {
+      font-weight: 600;
+      color: var(--accent-secondary);
+    }
+
+    .car-name {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    .time-cell {
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      letter-spacing: 0.03em;
+    }
+
+    .diff-cell {
+      font-family: 'Chakra Petch', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .stream-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    .stream-win {
+      background: rgba(16, 185, 129, 0.16);
+      color: var(--win);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .stream-loss {
+      background: rgba(244, 63, 94, 0.16);
+      color: var(--loss);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+    }
+
+    .stream-pending {
+      background: rgba(156, 163, 175, 0.12);
+      color: var(--text-muted);
+    }
+
+    .admin-panel {
+      margin-top: 28px;
+      background: var(--bg-card);
+      border: 1px dashed rgba(255, 42, 109, 0.45);
+      border-radius: 12px;
+      padding: 18px;
+    }
+
+    .admin-panel summary {
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      color: var(--accent-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .admin-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .admin-grid input, .admin-grid select {
+      background: #0b0d13;
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+      padding: 9px 11px;
+      border-radius: 6px;
+      font-size: 0.88rem;
+    }
+
+    .export-box {
+      width: 100%;
+      height: 110px;
+      margin-top: 12px;
+      background: #07090d;
+      color: #a5f3fc;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+  </style>
+
+  <body>
+  <div class="wrapper">
+    <header>
+      <div class="title-group">
+        <span class="tag">85.4 KM · MÁX 3 REBOBINADOS · IA MUY HÁBIL · SIN CLASES</span>
+        <h1>RETO <span>GOLIATH</span> — LEADERBOARD</h1>
+        <p class="hide-in-obs">Ganar en directo significa quedar 1.º — Cualquier otro puesto es derrota.</p>
+      </div>
+      <div class="game-tabs hide-in-obs" id="gameTabs">
+        <button class="tab-btn active" data-game="fh6">Forza Horizon 6</button>
+        <button class="tab-btn" data-game="fh7">Forza Horizon 7 (Próximamente)</button>
+      </div>
+    </header>
+
+    <section class="stats-bar hide-in-obs" id="statsBar"></section>
+
+    <div class="controls hide-in-obs">
+      <input type="text" id="searchInput" class="search-box" placeholder="Buscar coche o miembro del chat (ej. Trueno, Santi, Valkyrie)..." />
+      <div class="filter-group">
+        <button class="btn-small active" data-filter="all">Todos</button>
+        <button class="btn-small" data-filter="completed">Con Tiempo</button>
+        <button class="btn-small" data-filter="pending">Pendientes</button>
+        <button class="btn-small" id="toggleObsBtn" title="Vista limpia para navegador en OBS">Modo OBS</button>
+      </div>
+    </div>
+
+    <div class="board-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 70px;">Pos</th>
+            <th>Propuesto por</th>
+            <th>Vehículo</th>
+            <th>Tiempo (85.4 km)</th>
+            <th>Dif. Líder</th>
+            <th>Puesto Carrera</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboardBody"></tbody>
+      </table>
+    </div>
+
+    <details class="admin-panel hide-in-obs">
+      <summary>⚙️ Editar / Añadir Tiempo (Modo Admin Local)</summary>
+      <p style="font-size: 0.84rem; color: var(--text-muted); margin-top: 8px;">
+        Actualiza un coche al terminar la Goliath en directo. Luego copia el bloque JSON de abajo y pégalo en <code>GOLIATH_DATA</code> dentro de tu <code>index.html</code> en GitHub para que todo el chat lo vea.
+      </p>
+      <div class="admin-grid">
+        <select id="adminCarSelect"></select>
+        <input type="text" id="adminTime" placeholder="Tiempo (ej. 21:38.230 o vacío)" />
+        <select id="adminPos">
+          <option value="">Puesto: Pendiente</option>
+          <option value="1">1.º (Victoria)</option>
+          <option value="2">2.º</option>
+          <option value="3">3.º</option>
+          <option value="4">4.º</option>
+          <option value="5">5.º</option>
+          <option value="6">6.º</option>
+          <option value="7">7.º</option>
+          <option value="8">8.º</option>
+          <option value="9">9.º</option>
+          <option value="10">10.º</option>
+          <option value="11">11.º</option>
+          <option value="12">12.º</option>
+        </select>
+        <button class="btn-small" id="saveEntryBtn" style="background: var(--accent-primary); border: none; color: #fff;">Actualizar en Vista</button>
+      </div>
+      <div class="admin-grid" style="margin-top: 10px;">
+        <input type="text" id="newPilot" placeholder="Nuevo miembro chat" />
+        <input type="text" id="newCar" placeholder="Nuevo vehículo" />
+        <button class="btn-small" id="addNewCarBtn">+ Añadir Coche Nuevo</button>
+        <button class="btn-small" id="copyCodeBtn">📋 Copiar Datos para GitHub</button>
+      </div>
+      <textarea id="exportCode" class="export-box" readonly></textarea>
+    </details>
+  </div>
+
+  <script>
+    const GOLIATH_DATA = {
+      fh6: [
+        { pilot: "Santi", car: "Toyota Trueno GT Apex", time: "26:32.664", finishPos: 2 },
+        { pilot: "Iván", car: "Aston Martin Valkyrie AMR PRO", time: null, finishPos: null },
+        { pilot: "Santi", car: "Peel P50", time: null, finishPos: null },
+        { pilot: "Blanco", car: "Dodge Charger '72", time: null, finishPos: null },
+        { pilot: "Blanco", car: "Chevrolet Camaro ZL1", time: null, finishPos: null },
+        { pilot: "Blanco", car: "Ford Mustang GT500", time: null, finishPos: null },
+        { pilot: "Blanco", car: "Dodge Challenger SRT Demon", time: null, finishPos: null },
+        { pilot: "Blanco", car: "De Tomaso P900", time: null, finishPos: null },
+        { pilot: "Blanco", car: "Pagani Zonda R", time: null, finishPos: null },
+        { pilot: "Blanco", car: "Porsche 911 GT3 R", time: null, finishPos: null },
+        { pilot: "Blanco", car: "Lamborghini Revuelto", time: null, finishPos: null },
+        { pilot: "Blanco", car: "McLaren 765LT", time: null, finishPos: null },
+        { pilot: "Jaison", car: "Koenigsegg Regera", time: null, finishPos: null },
+        { pilot: "Jaison", car: "Ferrari LaFerrari", time: null, finishPos: null },
+        { pilot: "Helbert", car: "Audi R8 V10 Plus", time: null, finishPos: null },
+        { pilot: "Helbert", car: "Nissan GT-R Nismo", time: null, finishPos: null },
+        { pilot: "Kate", car: "Bugatti Chiron", time: null, finishPos: null },
+        { pilot: "Kate", car: "McLaren P1", time: null, finishPos: null }
+      ],
+      fh7: []
+    };
+
+    let currentGame = "fh6";
+    let currentFilter = "all";
+    let searchQuery = "";
+
+    function parseTimeToMs(timeStr) {
+      if (!timeStr) return Infinity;
+      const parts = timeStr.trim().split(":");
+      if (parts.length === 2) {
+        const mins = parseInt(parts[0], 10);
+        const secs = parseFloat(parts[1]);
+        return (mins * 60 + secs) * 1000;
+      } else if (parts.length === 3) {
+        const hrs = parseInt(parts[0], 10);
+        const mins = parseInt(parts[1], 10);
+        const secs = parseFloat(parts[2]);
+        return (hrs * 3600 + mins * 60 + secs) * 1000;
+      }
+      return Infinity;
+    }
+
+    function formatDiffMs(diffMs) {
+      if (diffMs <= 0) return "—";
+      const totalSeconds = diffMs / 1000;
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = (totalSeconds % 60).toFixed(3).padStart(6, "0");
+      return `+${String(mins).padStart(2, "0")}:${secs}`;
+    }
+
+    function renderStats(entries) {
+      const completed = entries.filter(e => e.time);
+      const wins = completed.filter(e => e.finishPos === 1).length;
+      const leader = completed[0];
+
+      document.getElementById("statsBar").innerHTML = `
+        <div class="stat-card">
+          <div class="label">Récord Absoluto</div>
+          <div class="value highlight">${leader ? leader.time : "Sin tiempos"}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Coche Líder</div>
+          <div class="value" style="font-size:1.1rem;">${leader ? leader.car : "—"}</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Progreso Reto</div>
+          <div class="value">${completed.length} / ${entries.length} coches</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Victorias en Directo (1.º)</div>
+          <div class="value" style="color: var(--win);">${wins} / ${completed.length}</div>
+        </div>
+      `;
+    }
+
+    function renderTable() {
+      const rawList = [...(GOLIATH_DATA[currentGame] || [])];
+
+      rawList.sort((a, b) => parseTimeToMs(a.time) - parseTimeToMs(b.time));
+
+      const leaderMs = rawList.length > 0 ? parseTimeToMs(rawList[0].time) : Infinity;
+      renderStats(rawList);
+
+      const filtered = rawList.filter(item => {
+        const matchesSearch =
+          item.car.toLowerCase().includes(searchQuery) ||
+          item.pilot.toLowerCase().includes(searchQuery);
+        if (!matchesSearch) return false;
+        if (currentFilter === "completed") return Boolean(item.time);
+        if (currentFilter === "pending") return !item.time;
+        return true;
+      });
+
+      const tbody = document.getElementById("leaderboardBody");
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted); padding:28px;">No hay vehículos registrados en esta vista todavía.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(item => {
+        const globalIndex = rawList.indexOf(item);
+        const hasTime = Boolean(item.time);
+        const rank = hasTime ? globalIndex + 1 : "—";
+        const rankClass = hasTime && rank <= 3 ? `rank-${rank}` : "";
+        const diffText = hasTime && globalIndex > 0 && leaderMs !== Infinity
+          ? formatDiffMs(parseTimeToMs(item.time) - leaderMs)
+          : "—";
+
+        let streamBadge = `<span class="stream-badge stream-pending">⏳ Pendiente</span>`;
+        if (item.finishPos === 1) {
+          streamBadge = `<span class="stream-badge stream-win">✅ 1.º</span>`;
+        } else if (typeof item.finishPos === "number" && item.finishPos > 1) {
+          streamBadge = `<span class="stream-badge stream-loss">❌ ${item.finishPos}.º</span>`;
+        }
+
+        return `
+          <tr class="${rankClass}">
+            <td><span class="pos-badge">${rank}</span></td>
+            <td class="pilot-name">${item.pilot}</td>
+            <td class="car-name">${item.car}</td>
+            <td class="time-cell">${hasTime ? item.time : '<span style="color:var(--text-muted); font-weight:400;">Pendiente</span>'}</td>
+            <td class="diff-cell">${diffText}</td>
+            <td>${streamBadge}</td>
+          </tr>
+        `;
+      }).join("");
+
+      refreshAdminSelect();
+      updateExportBox();
+    }
+
+    function refreshAdminSelect() {
+      const select = document.getElementById("adminCarSelect");
+      const list = GOLIATH_DATA[currentGame] || [];
+      select.innerHTML = list.map((item, idx) =>
+        `<option value="${idx}">${item.car} (${item.pilot})</option>`
+      ).join("");
+    }
+
+    function updateExportBox() {
+      document.getElementById("exportCode").value =
+        `const GOLIATH_DATA = ${JSON.stringify(GOLIATH_DATA, null, 2)};`;
+    }
+
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentGame = btn.dataset.game;
+        renderTable();
+      });
+    });
+
+    document.querySelectorAll(".filter-group .btn-small[data-filter]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".filter-group .btn-small[data-filter]").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        currentFilter = btn.dataset.filter;
+        renderTable();
+      });
+    });
+
+    document.getElementById("searchInput").addEventListener("input", e => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      renderTable();
+    });
+
+    document.getElementById("toggleObsBtn").addEventListener("click", () => {
+      document.body.classList.toggle("obs-mode");
+    });
+
+    document.getElementById("saveEntryBtn").addEventListener("click", () => {
+      const idx = parseInt(document.getElementById("adminCarSelect").value, 10);
+      const timeVal = document.getElementById("adminTime").value.trim();
+      const posVal = document.getElementById("adminPos").value;
+      if (isNaN(idx)) return;
+
+      GOLIATH_DATA[currentGame][idx].time = timeVal || null;
+      GOLIATH_DATA[currentGame][idx].finishPos = posVal ? parseInt(posVal, 10) : null;
+      renderTable();
+    });
+
+    document.getElementById("addNewCarBtn").addEventListener("click", () => {
+      const pilot = document.getElementById("newPilot").value.trim();
+      const car = document.getElementById("newCar").value.trim();
+      if (!pilot || !car) return;
+
+      GOLIATH_DATA[currentGame].push({ pilot, car, time: null, finishPos: null });
+      document.getElementById("newPilot").value = "";
+      document.getElementById("newCar").value = "";
+      renderTable();
+    });
+
+    document.getElementById("copyCodeBtn").addEventListener("click", () => {
+      const box = document.getElementById("exportCode");
+      box.select();
+      navigator.clipboard.writeText(box.value);
+      alert("¡Bloque GOLIATH_DATA copiado! Pégalo en tu index.html en GitHub.");
+    });
+
+    if (new URLSearchParams(window.location.search).get("obs") === "1") {
+      document.body.classList.add("obs-mode");
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
