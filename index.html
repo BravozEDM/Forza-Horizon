@@ -130,22 +130,14 @@
             <span class="text-slate-200 font-semibold">1 Vuelta</span>
             <span class="text-forza-crimson">•</span>
             <span class="text-slate-200 font-semibold">Máx. 3 Rebobinados</span>
-            <span class="text-forza-crimson">•</span>
-            <span class="text-slate-200 font-semibold">Tabla Única Sin Clases</span>
-            <span class="text-forza-crimson">•</span>
-            <span class="text-forza-cyan font-semibold">Ganar = 1.º en Stream</span>
           </p>
         </div>
 
-        <!-- Selector de Temporada / Juego -->
+        <!-- Badge de Temporada Activa -->
         <div class="flex flex-wrap items-center gap-2 bg-carbon-850 p-1.5 rounded-2xl border border-white/10 self-start lg:self-center">
-          <button id="tab-fh6" onclick="switchSeason('fh6')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer bg-forza-crimson text-white shadow-lg shadow-forza-crimson/25">
+          <span class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-forza-crimson text-white shadow-lg shadow-forza-crimson/25">
             Forza Horizon 6 — Goliath (85.4 km)
-          </button>
-          <button id="tab-fh7" onclick="switchSeason('fh7')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-1.5">
-            <span>Forza Horizon 7</span>
-            <span class="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-forza-cyan/15 text-forza-cyan border border-forza-cyan/30">Pronto</span>
-          </button>
+          </span>
         </div>
       </div>
     </header>
@@ -305,39 +297,6 @@
       </footer>
     </main>
 
-    <!-- VISTA FORZA HORIZON 7 (PRÓXIMAMENTE) -->
-    <section id="view-fh7" class="hidden">
-      <div class="bg-carbon-850/90 border border-white/10 rounded-3xl p-8 sm:p-14 text-center max-w-3xl mx-auto my-8 relative overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-forza-cyan/10 via-transparent to-forza-crimson/10 pointer-events-none"></div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forza-cyan/15 border border-forza-cyan/30 text-forza-cyan text-xs font-bold uppercase tracking-wider mb-4">
-          Próxima Temporada Preparada
-        </div>
-        <h2 class="text-3xl sm:text-4xl font-black text-white tracking-tight mb-3">
-          FORZA HORIZON 7 // GOLIATH
-        </h2>
-        <p class="text-slate-400 text-sm sm:text-base max-w-xl mx-auto leading-relaxed mb-6">
-          La infraestructura de telemetría de <strong class="text-white">Blanco GMR</strong> ya está lista para la siguiente entrega. Cuando se anuncie el nuevo mapa y circuito Goliath, activaremos aquí la nueva tabla oficial manteniendo intacto el historial de Forza Horizon 6.
-        </p>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-xl mx-auto text-left mb-8">
-          <div class="bg-carbon-950/80 border border-white/10 rounded-xl p-3.5">
-            <div class="text-[11px] font-bold uppercase text-slate-500">Reglas</div>
-            <div class="text-xs font-semibold text-slate-200 mt-0.5">Máx. 3 Rebobinados</div>
-          </div>
-          <div class="bg-carbon-950/80 border border-white/10 rounded-xl p-3.5">
-            <div class="text-[11px] font-bold uppercase text-slate-500">Formato</div>
-            <div class="text-xs font-semibold text-slate-200 mt-0.5">Tabla Única Sin Clases</div>
-          </div>
-          <div class="bg-carbon-950/80 border border-white/10 rounded-xl p-3.5">
-            <div class="text-[11px] font-bold uppercase text-slate-500">Apuestas Chat</div>
-            <div class="text-xs font-semibold text-forza-cyan mt-0.5">1.º = Victoria</div>
-          </div>
-        </div>
-        <button onclick="switchSeason('fh6')" class="px-6 py-3 rounded-xl bg-forza-crimson hover:bg-rose-500 text-white text-sm font-bold shadow-lg shadow-forza-crimson/25 transition cursor-pointer">
-          ← Volver a la Tabla Activa de FH6
-        </button>
-      </div>
-    </section>
-
   </div>
 
   <!-- MODAL DE MODO ADMIN LOCAL (PARA STREAM Y GITHUB PAGES) -->
@@ -439,15 +398,6 @@
   </div>
 
   <script>
-    /**
-     * ============================================================================
-     * DATOS OFICIALES DEL RETO GOLIATH 85.4 KM - BLANCO GMR
-     * ============================================================================
-     * - time: Tiempo en formato "MM:SS.mmm" o null si está pendiente.
-     * - streamResult: "win" (1.º Victoria), "loss" (No quedó 1.º), o "pending".
-     * - finishPos: Número de puesto cuando streamResult === "loss" (ej. 2, 3, 4...).
-     * ============================================================================
-     */
     const GOLIATH_DATA = [
       {
         id: 1,
@@ -613,8 +563,7 @@
       }
     ];
 
-    // Estado activo en memoria (con respaldo en localStorage para ediciones rápidas en directo)
-    const STORAGE_KEY = 'blanco_gmr_goliath_fh6_v2';
+    const STORAGE_KEY = 'blanco_gmr_goliath_fh6_v3';
     let entries = loadInitialData();
     let currentStatusFilter = 'all';
 
@@ -704,7 +653,7 @@
         document.getElementById('kpi-record-car').textContent = `${leader.car} (${leader.pilot})`;
       } else {
         document.getElementById('kpi-record-time').textContent = '--:--.---';
-        document.getElementById('kpi-record-car').textContent = 'Sin tiempos aún';
+        document.getElementById('kpi-record-car').textContent = 'Sin registros';
       }
 
       const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
@@ -856,25 +805,6 @@
     function resetFilters() {
       document.getElementById('search-input').value = '';
       setStatusFilter('all');
-    }
-
-    function switchSeason(season) {
-      const viewFh6 = document.getElementById('view-fh6');
-      const viewFh7 = document.getElementById('view-fh7');
-      const tabFh6 = document.getElementById('tab-fh6');
-      const tabFh7 = document.getElementById('tab-fh7');
-
-      if (season === 'fh6') {
-        viewFh6.classList.remove('hidden');
-        viewFh7.classList.add('hidden');
-        tabFh6.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer bg-forza-crimson text-white shadow-lg shadow-forza-crimson/25';
-        tabFh7.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5 flex items-center gap-1.5';
-      } else {
-        viewFh6.classList.add('hidden');
-        viewFh7.classList.remove('hidden');
-        tabFh7.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer bg-forza-cyan text-carbon-950 shadow-lg shadow-forza-cyan/25 flex items-center gap-1.5';
-        tabFh6.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer text-slate-400 hover:text-white hover:bg-white/5';
-      }
     }
 
     function toggleObsMode(enable, fromUrl = false) {
