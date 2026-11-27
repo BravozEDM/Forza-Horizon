@@ -1,19 +1,5 @@
-const STORAGE_KEY = 'blanco_gmr_goliath_fh6_v4';
-let entries = loadInitialData();
+const entries = Array.isArray(GOLIATH_DATA) ? GOLIATH_DATA : [];
 let currentStatusFilter = 'all';
-
-function loadInitialData() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-    }
-  } catch (e) {
-    console.warn('No se pudo leer localStorage, usando datos base.', e);
-  }
-  return JSON.parse(JSON.stringify(GOLIATH_DATA));
-}
 
 function parseTimeToMs(timeStr) {
   if (!timeStr || typeof timeStr !== 'string') return null;
@@ -88,14 +74,13 @@ function updateKPIs(sorted) {
     document.getElementById('kpi-record-car').textContent = `${leader.car} (${leader.pilot})`;
   } else {
     document.getElementById('kpi-record-time').textContent = '--:--.---';
-    document.getElementById('kpi-record-car').textContent = 'Sin tiempos aún';
+    document.getElementById('kpi-record-car').textContent = 'Sin registros';
   }
 
   const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
   document.getElementById('kpi-completed').textContent = `${completedCount} / ${total}`;
   document.getElementById('kpi-completed-pct').textContent = `(${pct}%)`;
   document.getElementById('kpi-progress-bar').style.width = `${pct}%`;
-  document.getElementById('obs-counter').textContent = `${completedCount} / ${total} COMPLETADOS`;
 
   const wins = sorted.filter(item => item.streamResult === 'win').length;
   const losses = sorted.filter(item => item.streamResult === 'loss').length;
@@ -208,7 +193,7 @@ function renderTable() {
         <td class="py-3.5 px-4 text-right whitespace-nowrap">${timeHtml}</td>
         <td class="py-3.5 px-4 text-right whitespace-nowrap">${diffHtml}</td>
         <td class="py-3.5 px-4 text-center whitespace-nowrap">${streamHtml}</td>
-        <td class="py-3.5 px-4 text-center whitespace-nowrap hide-in-obs">${videoHtml}</td>
+        <td class="py-3.5 px-4 text-center whitespace-nowrap">${videoHtml}</td>
       </tr>
     `;
   }).join('');
@@ -242,194 +227,6 @@ function resetFilters() {
   setStatusFilter('all');
 }
 
-function toggleObsMode(enable, fromUrl = false) {
-  const body = document.body;
-  const obsHeader = document.getElementById('obs-table-header');
-  const exitBar = document.getElementById('obs-exit-bar');
-
-  if (enable) {
-    body.classList.add('obs-mode');
-    obsHeader.classList.remove('hidden');
-    obsHeader.classList.add('flex');
-    if (fromUrl) {
-      exitBar.style.display = 'none';
-    }
-  } else {
-    body.classList.remove('obs-mode');
-    obsHeader.classList.add('hidden');
-    obsHeader.classList.remove('flex');
-    exitBar.style.display = 'none';
-  }
-}
-
-function toggleFinishPosInput() {
-  const streamVal = document.getElementById('admin-stream').value;
-  const wrapper = document.getElementById('admin-pos-wrapper');
-  if (streamVal === 'loss') {
-    wrapper.classList.remove('hidden');
-  } else {
-    wrapper.classList.add('hidden');
-  }
-}
-
-function openAdminModal() {
-  populateAdminSelect();
-  updateJsonExportBox();
-  document.getElementById('admin-modal').classList.remove('hidden');
-}
-
-function closeAdminModal() {
-  document.getElementById('admin-modal').classList.add('hidden');
-}
-
-function populateAdminSelect() {
-  const select = document.getElementById('admin-select-car');
-  const currentVal = select.value;
-  select.innerHTML = `<option value="__NEW__">+ Añadir nuevo vehículo a la lista...</option>`;
-  entries.forEach(item => {
-    const statusTag = item.time ? `[${item.time}]` : '[Pendiente]';
-    const opt = document.createElement('option');
-    opt.value = String(item.id);
-    opt.textContent = `${item.pilot} — ${item.car} ${statusTag}`;
-    select.appendChild(opt);
-  });
-  if ([...select.options].some(o => o.value === currentVal)) {
-    select.value = currentVal;
-  }
-  loadCarIntoForm();
-}
-
-function loadCarIntoForm() {
-  const val = document.getElementById('admin-select-car').value;
-  if (val === '__NEW__') {
-    document.getElementById('admin-pilot').value = '';
-    document.getElementById('admin-car').value = '';
-    document.getElementById('admin-time').value = '';
-    document.getElementById('admin-stream').value = 'pending';
-    document.getElementById('admin-finish-pos').value = '2';
-    document.getElementById('admin-video').value = '';
-    toggleFinishPosInput();
-    return;
-  }
-  const item = entries.find(e => String(e.id) === val);
-  if (item) {
-    document.getElementById('admin-pilot').value = item.pilot || '';
-    document.getElementById('admin-car').value = item.car || '';
-    document.getElementById('admin-time').value = item.time || '';
-    document.getElementById('admin-stream').value = item.streamResult || 'pending';
-    document.getElementById('admin-finish-pos').value = item.finishPos ? String(item.finishPos) : '2';
-    document.getElementById('admin-video').value = item.videoUrl || '';
-    toggleFinishPosInput();
-  }
-}
-
-function saveAdminEntry() {
-  const val = document.getElementById('admin-select-car').value;
-  const pilot = document.getElementById('admin-pilot').value.trim();
-  const car = document.getElementById('admin-car').value.trim();
-  const rawTime = document.getElementById('admin-time').value.trim();
-  const streamResult = document.getElementById('admin-stream').value;
-  const finishPos = streamResult === 'loss'
-    ? parseInt(document.getElementById('admin-finish-pos').value, 10)
-    : (streamResult === 'win' ? 1 : null);
-  const videoUrl = document.getElementById('admin-video').value.trim();
-
-  if (!pilot || !car) {
-    showToast('Escribe al menos el piloto y el nombre del coche.', '⚠️');
-    return;
-  }
-
-  if (rawTime && parseTimeToMs(rawTime) === null) {
-    showToast('Formato de tiempo inválido. Usa MM:SS.mmm (ej. 24:10.500)', '⚠️');
-    return;
-  }
-
-  const cleanTime = rawTime ? rawTime : null;
-
-  if (val === '__NEW__') {
-    const maxId = entries.reduce((max, item) => Math.max(max, item.id), 0);
-    entries.push({
-      id: maxId + 1,
-      pilot,
-      car,
-      time: cleanTime,
-      streamResult,
-      finishPos,
-      videoUrl
-    });
-  } else {
-    const idx = entries.findIndex(e => String(e.id) === val);
-    if (idx !== -1) {
-      entries[idx] = {
-        ...entries[idx],
-        pilot,
-        car,
-        time: cleanTime,
-        streamResult,
-        finishPos,
-        videoUrl
-      };
-    }
-  }
-
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  } catch (e) {
-    console.warn('No se pudo guardar en localStorage.', e);
-  }
-
-  populateAdminSelect();
-  updateJsonExportBox();
-  renderTable();
-  showToast('Tabla actualizada en vivo ✔', '🏁');
-}
-
-function resetLocalChanges() {
-  try {
-    localStorage.removeItem(STORAGE_KEY);
-  } catch (e) {}
-  entries = JSON.parse(JSON.stringify(GOLIATH_DATA));
-  populateAdminSelect();
-  updateJsonExportBox();
-  renderTable();
-  showToast('Datos restaurados a la versión original del código.', '🔄');
-}
-
-function updateJsonExportBox() {
-  const formatted = `const GOLIATH_DATA = ${JSON.stringify(entries, null, 2)};`;
-  document.getElementById('json-export-box').value = formatted;
-}
-
-function copyJsonToClipboard() {
-  const box = document.getElementById('json-export-box');
-  box.select();
-  box.setSelectionRange(0, 99999);
-  try {
-    document.execCommand('copy');
-    showToast('Código copiado. Pégalo en data.js en GitHub Pages.', '📋');
-  } catch (err) {
-    showToast('Selecciona el cuadro y pulsa Ctrl+C para copiar.', 'ℹ️');
-  }
-}
-
-function showToast(message, icon = '✔') {
-  const toast = document.getElementById('toast');
-  document.getElementById('toast-msg').textContent = message;
-  document.getElementById('toast-icon').textContent = icon;
-  toast.classList.remove('translate-y-[-120%]', 'opacity-0');
-  toast.classList.add('translate-y-0', 'opacity-100');
-
-  clearTimeout(window.__toastTimer);
-  window.__toastTimer = setTimeout(() => {
-    toast.classList.add('translate-y-[-120%]', 'opacity-0');
-    toast.classList.remove('translate-y-0', 'opacity-100');
-  }, 3200);
-}
-
 window.addEventListener('DOMContentLoaded', () => {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('obs') === '1') {
-    toggleObsMode(true, true);
-  }
   renderTable();
 });
