@@ -39,24 +39,9 @@
 </head>
 <body class="antialiased selection:bg-forza-crimson selection:text-white">
 
-  <div id="obs-exit-bar" class="hidden fixed bottom-3 right-3 z-50 items-center gap-2 bg-carbon-900/95 border border-white/15 px-3 py-1.5 rounded-full shadow-lg text-xs">
-    <span class="w-2 h-2 rounded-full bg-forza-crimson animate-pulse"></span>
-    <span class="text-slate-300 font-medium">Vista Overlay OBS</span>
-    <button onclick="toggleObsMode(false)" class="ml-1 px-2 py-0.5 rounded-full bg-white/10 hover:bg-forza-crimson text-white font-semibold transition cursor-pointer">
-      Salir
-    </button>
-  </div>
-
-  <div id="toast" class="fixed top-4 right-4 z-50 transform translate-y-[-120%] opacity-0 transition-all duration-300 pointer-events-none">
-    <div class="bg-carbon-800 border border-forza-cyan/40 text-slate-100 px-4 py-3 rounded-xl shadow-2xl flex items-center gap-3 text-sm font-medium">
-      <span id="toast-icon" class="text-forza-cyan">✔</span>
-      <span id="toast-msg">Acción completada</span>
-    </div>
-  </div>
-
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
 
-    <header class="hide-in-obs mb-6 sm:mb-8">
+    <header class="mb-6 sm:mb-8">
       <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-white/10">
         <div>
           <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forza-crimson/15 border border-forza-crimson/30 text-forza-crimson text-xs font-bold tracking-wider uppercase mb-3">
@@ -84,7 +69,7 @@
     </header>
 
     <main id="view-fh6">
-      <section class="hide-in-obs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div class="bg-carbon-850/90 border border-white/10 rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-forza-gold/40 transition">
           <div class="absolute top-0 right-0 w-24 h-24 bg-forza-gold/10 rounded-full blur-2xl -mr-8 -mt-8"></div>
           <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">
@@ -134,58 +119,34 @@
         </div>
       </section>
 
-      <section class="hide-in-obs bg-carbon-850/80 border border-white/10 rounded-2xl p-3 sm:p-4 mb-6 flex flex-col xl:flex-row xl:items-center justify-between gap-3">
-        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 flex-1">
-          <div class="relative flex-1 max-w-md">
-            <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
-            </svg>
-            <input
-              id="search-input"
-              type="text"
-              placeholder="Buscar coche o piloto (ej. Trueno, Jaison, Aston...)"
-              oninput="renderTable()"
-              class="w-full bg-carbon-950 border border-white/10 focus:border-forza-cyan rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition"
-            />
-          </div>
-
-          <div class="inline-flex bg-carbon-950 p-1 rounded-xl border border-white/10 self-start sm:self-auto">
-            <button onclick="setStatusFilter('all')" id="filter-all" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-white/10 text-white">
-              Todos
-            </button>
-            <button onclick="setStatusFilter('completed')" id="filter-completed" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-slate-400 hover:text-white">
-              Completados
-            </button>
-            <button onclick="setStatusFilter('pending')" id="filter-pending" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-slate-400 hover:text-white">
-              Pendientes
-            </button>
-          </div>
+      <section class="bg-carbon-850/80 border border-white/10 rounded-2xl p-3 sm:p-4 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div class="relative flex-1 max-w-md">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.5 10.5a7.5 7.5 0 0013.15 6.15z" />
+          </svg>
+          <input
+            id="search-input"
+            type="text"
+            placeholder="Buscar coche o piloto (ej. Trueno, Jaison, Aston...)"
+            oninput="renderTable()"
+            class="w-full bg-carbon-950 border border-white/10 focus:border-forza-cyan rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 outline-none transition"
+          />
         </div>
 
-        <div class="flex flex-wrap items-center gap-2.5">
-          <button onclick="toggleObsMode(true)" class="px-3.5 py-2.5 rounded-xl bg-carbon-800 hover:bg-carbon-700 border border-white/10 text-slate-200 text-xs font-bold flex items-center gap-2 transition cursor-pointer" title="Activa la vista limpia para Fuente de Navegador en OBS (?obs=1)">
-            <span class="w-2 h-2 rounded-full bg-forza-cyan"></span>
-            <span>Modo Overlay OBS</span>
+        <div class="inline-flex bg-carbon-950 p-1 rounded-xl border border-white/10 self-start sm:self-auto">
+          <button onclick="setStatusFilter('all')" id="filter-all" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer bg-white/10 text-white">
+            Todos
           </button>
-
-          <button onclick="openAdminModal()" class="px-4 py-2.5 rounded-xl bg-forza-crimson hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-forza-crimson/20 transition cursor-pointer">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span>Editar / Añadir Tiempo (Modo Admin Local)</span>
+          <button onclick="setStatusFilter('completed')" id="filter-completed" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-slate-400 hover:text-white">
+            Completados
+          </button>
+          <button onclick="setStatusFilter('pending')" id="filter-pending" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer text-slate-400 hover:text-white">
+            Pendientes
           </button>
         </div>
       </section>
 
       <section id="leaderboard-container" class="bg-carbon-850/90 border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
-        <div id="obs-table-header" class="hidden px-4 py-2.5 bg-carbon-950/90 border-b border-white/10 items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 rounded-full bg-forza-crimson"></span>
-            <span class="text-xs font-black tracking-wider uppercase text-white">BLANCO GMR // GOLIATH 85.4 KM (FH6)</span>
-          </div>
-          <span id="obs-counter" class="text-xs font-mono text-forza-cyan font-bold">1 / 18</span>
-        </div>
-
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
@@ -196,7 +157,7 @@
                 <th class="py-3.5 px-4 text-right">Tiempo (85.4 km)</th>
                 <th class="py-3.5 px-4 text-right">Dif. Líder</th>
                 <th class="py-3.5 px-4 text-center">Resultado Stream</th>
-                <th class="py-3.5 px-4 text-center hide-in-obs">Vídeo</th>
+                <th class="py-3.5 px-4 text-center">Vídeo</th>
               </tr>
             </thead>
             <tbody id="leaderboard-body" class="divide-y divide-white/5 text-sm"></tbody>
@@ -211,110 +172,16 @@
         </div>
       </section>
 
-      <footer class="hide-in-obs mt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
-        <div>
-          Tip para OBS Studio: añade <code class="px-1.5 py-0.5 rounded bg-carbon-800 text-forza-cyan font-mono">?obs=1</code> al final de tu enlace de GitHub Pages en la Fuente de Navegador.
-        </div>
+      <footer class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
         <div>
           Blanco GMR • Reto Goliath 85.4 km
+        </div>
+        <div>
+          Clasificación Oficial
         </div>
       </footer>
     </main>
 
-  </div>
-
-  <div id="admin-modal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-carbon-900 border border-white/15 rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden my-8">
-      <div class="px-6 py-4 bg-carbon-950 border-b border-white/10 flex items-center justify-between">
-        <div>
-          <h3 class="text-lg font-extrabold text-white flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-forza-crimson"></span>
-            <span>Editor Rápido en Vivo (Modo Admin Local)</span>
-          </h3>
-          <p class="text-xs text-slate-400 mt-0.5">Actualiza tiempos en directo y copia el código para pegarlo en <code class="text-forza-cyan">data.js</code> en GitHub Pages.</p>
-        </div>
-        <button onclick="closeAdminModal()" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition cursor-pointer">
-          ✕
-        </button>
-      </div>
-
-      <div class="p-6 space-y-4">
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Seleccionar vehículo existente o crear nuevo</label>
-          <select id="admin-select-car" onchange="loadCarIntoForm()" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2.5 text-sm text-white outline-none">
-            <option value="__NEW__">+ Añadir nuevo vehículo a la lista...</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Piloto / Miembro del Chat</label>
-            <input id="admin-pilot" type="text" placeholder="Ej. Santi, Jaison, Blanco..." class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Vehículo</label>
-            <input id="admin-car" type="text" placeholder="Ej. Peel P50" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Tiempo (MM:SS.mmm)</label>
-            <input id="admin-time" type="text" placeholder="Ej. 24:15.420 (vacío = pendiente)" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white font-mono outline-none" />
-          </div>
-          <div>
-            <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Resultado en Stream</label>
-            <select id="admin-stream" onchange="toggleFinishPosInput()" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none">
-              <option value="pending">⏳ Pendiente</option>
-              <option value="win">✅ 1.º Victoria (Apuesta ganada)</option>
-              <option value="loss">❌ No ganó (Indicar puesto)</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="admin-pos-wrapper" class="hidden">
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Puesto en el que llegaste</label>
-          <select id="admin-finish-pos" class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none">
-            <option value="2">2.º puesto</option>
-            <option value="3">3.º puesto</option>
-            <option value="4">4.º puesto</option>
-            <option value="5">5.º puesto</option>
-            <option value="6">6.º puesto</option>
-            <option value="7">7.º puesto</option>
-            <option value="8">8.º puesto</option>
-            <option value="9">9.º puesto</option>
-            <option value="10">10.º puesto</option>
-            <option value="11">11.º puesto</option>
-            <option value="12">12.º puesto</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-1.5">Enlace de YouTube (Opcional)</label>
-          <input id="admin-video" type="url" placeholder="https://www.youtube.com/watch?v=..." class="w-full bg-carbon-950 border border-white/15 focus:border-forza-cyan rounded-xl px-3.5 py-2 text-sm text-white outline-none" />
-        </div>
-
-        <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
-          <button onclick="resetLocalChanges()" class="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-rose-950/60 border border-white/10 hover:border-forza-crimson/40 text-xs font-semibold text-slate-400 hover:text-rose-300 transition cursor-pointer">
-            Restaurar datos originales del archivo
-          </button>
-
-          <button onclick="saveAdminEntry()" class="px-5 py-2.5 rounded-xl bg-forza-cyan hover:bg-cyan-400 text-carbon-950 text-xs font-black uppercase tracking-wider transition cursor-pointer">
-            Aplicar en Pantalla Ahora
-          </button>
-        </div>
-
-        <div class="pt-4 border-t border-white/10">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold text-slate-300">Código <code class="text-forza-cyan">GOLIATH_DATA</code> listo para pegar en <code class="text-forza-cyan">data.js</code>:</span>
-            <button onclick="copyJsonToClipboard()" class="px-3 py-1.5 rounded-lg bg-forza-crimson hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1.5 transition cursor-pointer">
-              <span>📋 Copiar código actualizado</span>
-            </button>
-          </div>
-          <textarea id="json-export-box" readonly rows="6" class="w-full bg-carbon-950 border border-white/10 rounded-xl p-3 text-xs font-mono text-emerald-400 outline-none resize-y"></textarea>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script src="data.js"></script>
