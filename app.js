@@ -1,5 +1,6 @@
 const ADMIN_SECRET_KEY = 'gmr2026';
 const STORAGE_KEY = 'blanco_gmr_goliath_fh6_v7';
+const GOLIATH_MAP_SRC = './goliath-map.jpg'; // Cambia este nombre si guardaste la imagen con otro archivo
 
 let entries = loadInitialData();
 let currentStatusFilter = 'all';
@@ -397,7 +398,46 @@ function showToast(message, icon = '✔') {
   }, 3200);
 }
 
+function initTableScrollWrapper() {
+  const tbody = document.getElementById('leaderboard-body');
+  const table = tbody ? tbody.closest('table') : null;
+  if (!table || !table.parentElement || table.parentElement.classList.contains('table-scroll-wrapper')) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'table-scroll-wrapper';
+  table.parentNode.insertBefore(wrapper, table);
+  wrapper.appendChild(table);
+}
+
+function injectGoliathMapCard(imageSrc = GOLIATH_MAP_SRC) {
+  const container = document.getElementById('leaderboard-container');
+  const targetParent = container ? container.parentElement : document.body;
+  if (!targetParent || document.getElementById('goliath-map-card')) return;
+
+  const card = document.createElement('section');
+  card.id = 'goliath-map-card';
+  card.className = 'circuit-map-card hide-in-obs';
+  card.innerHTML = `
+    <img src="${escapeHtml(imageSrc)}" alt="Mapa del circuito The Goliath - 85.4 km" loading="lazy" />
+    <div class="circuit-map-info">
+      <h3>Circuito Oficial: The Goliath (85.4 km)</h3>
+      <p>
+        Vuelta completa al perímetro del mapa. Tramos de máxima velocidad punta combinados con zonas técnicas donde la estabilidad y la gestión de rebobinados (máx. 3) marcan la diferencia.
+      </p>
+    </div>
+  `;
+
+  if (container) {
+    targetParent.insertBefore(card, container);
+  } else {
+    targetParent.prepend(card);
+  }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+  initTableScrollWrapper();
+  injectGoliathMapCard();
+
   const params = new URLSearchParams(window.location.search);
   if (params.get('admin') === ADMIN_SECRET_KEY) {
     openAdminModal();
