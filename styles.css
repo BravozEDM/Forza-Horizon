@@ -13,6 +13,83 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
+/* Scroll interno en la tabla para listas largas sin estirar toda la página */
+#leaderboard-container table,
+.leaderboard-table,
+.table-scroll-wrapper {
+  display: block;
+  max-height: 520px; /* Ajusta esta altura según cuántas filas quieras ver */
+  overflow-y: auto;
+  overflow-x: auto;
+  border-radius: 12px;
+}
+
+/* Si tu tabla es de ancho completo, asegúrate de que ocupe el 100% si es un wrapper */
+.table-scroll-wrapper table {
+  display: table;
+  width: 100%;
+  max-height: none;
+  overflow: visible;
+}
+
+/* Cabecera fija mientras haces scroll dentro de la tabla */
+#leaderboard-container thead th,
+.leaderboard-table thead th,
+.table-scroll-wrapper thead th {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #111520;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+}
+
+/* En modo OBS, un pelín más compacto para que no coma demasiado espacio en escena */
+body.obs-mode #leaderboard-container table,
+body.obs-mode .leaderboard-table,
+body.obs-mode .table-scroll-wrapper {
+  max-height: 360px;
+}
+
+/* Tarjeta / bloque del mapa de The Goliath (85.4 km) */
+.circuit-map-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  background: rgba(17, 21, 32, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+}
+
+.circuit-map-card img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid rgba(225, 29, 72, 0.35);
+  flex-shrink: 0;
+}
+
+.circuit-map-info h3 {
+  margin: 0 0 6px 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.circuit-map-info p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #94a3b8;
+  line-height: 1.45;
+}
+
+body.obs-mode .circuit-map-card {
+  display: none;
+}
+
 body.obs-mode {
   background-color: transparent !important;
   background-image: none !important;
@@ -50,4 +127,17 @@ body.obs-mode #leaderboard-container {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #e11d48;
+}
+
+@media (max-width: 640px) {
+  .circuit-map-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .circuit-map-card img {
+    width: 100%;
+    max-width: 240px;
+    height: auto;
+  }
 }
