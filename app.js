@@ -1,6 +1,6 @@
 const ADMIN_SECRET_KEY = 'gmr2026';
 const STORAGE_KEY = 'blanco_gmr_goliath_fh6_v7';
-const GOLIATH_MAP_SRC = './goliath-map.jpg'; // Cambia este nombre si guardaste la imagen con otro archivo
+const GOLIATH_MAP_SRC = './assets/goliath-map.jpg';
 
 let entries = loadInitialData();
 let currentStatusFilter = 'all';
