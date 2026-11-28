@@ -40,8 +40,8 @@ body.obs-mode .table-scroll-wrapper {
 .circuit-map-card {
   display: flex;
   align-items: center;
-  gap: 18px;
-  background: rgba(17, 21, 32, 0.85);
+  gap: 20px;
+  background: rgba(17, 21, 32, 0.88);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 14px;
   padding: 14px 18px;
@@ -50,17 +50,17 @@ body.obs-mode .table-scroll-wrapper {
 }
 
 .circuit-map-card img {
-  width: 150px;
-  height: 150px;
+  width: 240px;
+  height: 135px;
   object-fit: cover;
   border-radius: 10px;
-  border: 1px solid rgba(225, 29, 72, 0.35);
+  border: 1px solid rgba(225, 29, 72, 0.4);
   flex-shrink: 0;
 }
 
 .circuit-map-info h3 {
   margin: 0 0 6px 0;
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   font-weight: 700;
   color: #f8fafc;
 }
@@ -123,7 +123,7 @@ body.obs-mode #leaderboard-container {
 
   .circuit-map-card img {
     width: 100%;
-    max-width: 240px;
+    max-width: 320px;
     height: auto;
   }
 }
