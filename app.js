@@ -474,7 +474,7 @@ function organizeGoliathLayout(imageSrc = GOLIATH_MAP_SRC) {
     `;
   }
 
-  const anchorCard = totalCard || bestCard || worstCard;
+  const anchorCard = bestCard || worstCard || totalCard;
   if (anchorCard && anchorCard.parentElement) {
     const hostParent = anchorCard.parentElement;
 
@@ -510,12 +510,9 @@ function organizeGoliathLayout(imageSrc = GOLIATH_MAP_SRC) {
     leftCol.appendChild(mapCard);
     leftCol.appendChild(mapInfo);
 
-    if (totalCard) {
-      totalCard.classList.add('goliath-kpi-featured');
-      kpisGrid.appendChild(totalCard);
-    }
     if (bestCard) kpisGrid.appendChild(bestCard);
     if (worstCard) kpisGrid.appendChild(worstCard);
+    if (totalCard) kpisGrid.appendChild(totalCard);
 
     rightCol.appendChild(kpisGrid);
 
