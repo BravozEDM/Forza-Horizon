@@ -13,28 +13,16 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Scroll interno en la tabla para listas largas sin estirar toda la página */
-#leaderboard-container table,
-.leaderboard-table,
+/* Scroll interno en la tabla para listas largas */
 .table-scroll-wrapper {
-  display: block;
-  max-height: 520px; /* Ajusta esta altura según cuántas filas quieras ver */
+  max-height: 520px;
   overflow-y: auto;
   overflow-x: auto;
   border-radius: 12px;
+  position: relative;
 }
 
-/* Si tu tabla es de ancho completo, asegúrate de que ocupe el 100% si es un wrapper */
-.table-scroll-wrapper table {
-  display: table;
-  width: 100%;
-  max-height: none;
-  overflow: visible;
-}
-
-/* Cabecera fija mientras haces scroll dentro de la tabla */
-#leaderboard-container thead th,
-.leaderboard-table thead th,
+/* Cabecera fija al hacer scroll dentro de la tabla */
 .table-scroll-wrapper thead th {
   position: sticky;
   top: 0;
@@ -43,14 +31,12 @@ body {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
-/* En modo OBS, un pelín más compacto para que no coma demasiado espacio en escena */
-body.obs-mode #leaderboard-container table,
-body.obs-mode .leaderboard-table,
+/* Altura ajustada en modo OBS */
 body.obs-mode .table-scroll-wrapper {
   max-height: 360px;
 }
 
-/* Tarjeta / bloque del mapa de The Goliath (85.4 km) */
+/* Tarjeta del mapa de The Goliath (85.4 km) */
 .circuit-map-card {
   display: flex;
   align-items: center;
