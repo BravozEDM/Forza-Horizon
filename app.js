@@ -409,22 +409,18 @@ function initTableScrollWrapper() {
   wrapper.appendChild(table);
 }
 
-function findKpiGroupContainer(bestEl, worstEl, totalEl) {
-  if (!bestEl) return null;
-  const targets = [bestEl, worstEl, totalEl].filter(Boolean);
-  let curr = bestEl.parentElement;
-  while (curr && curr !== document.body) {
-    if (targets.every(el => curr.contains(el))) {
-      const hasNonKpiText = Array.from(curr.children).some(child => {
-        if (child.contains(bestEl) || child.contains(worstEl) || child.contains(totalEl)) return false;
-        const txt = (child.textContent || '').toUpperCase();
-        return txt.includes('BUSCAR') || txt.includes('TODOS') || child.querySelector('table');
-      });
-      if (!hasNonKpiText) return curr;
+function getCardElement(metricEl) {
+  if (!metricEl) return null;
+  let curr = metricEl.parentElement;
+  while (curr && curr !== document.body && curr.parentElement) {
+    const parent = curr.parentElement;
+    const isGridOrFlex = /grid|flex/.test(parent.className || '');
+    if (isGridOrFlex && parent.children.length >= 2 && parent.children.length <= 4) {
+      return curr;
     }
-    curr = curr.parentElement;
+    curr = parent;
   }
-  return bestEl.closest('div[class*="grid"]')?.parentElement || bestEl.parentElement;
+  return metricEl.parentElement;
 }
 
 function findFilterBarContainer() {
@@ -446,7 +442,10 @@ function organizeGoliathLayout(imageSrc = GOLIATH_MAP_SRC) {
   const worstEl = document.getElementById('kpi-worst-time');
   const totalEl = document.getElementById('kpi-total-cars');
 
-  const kpiContainer = findKpiGroupContainer(bestEl, worstEl, totalEl);
+  const bestCard = getCardElement(bestEl);
+  const worstCard = getCardElement(worstEl);
+  const totalCard = getCardElement(totalEl);
+
   const filterBar = findFilterBarContainer();
   const tbody = document.getElementById('leaderboard-body');
   const table = tbody ? tbody.closest('table') : null;
@@ -456,31 +455,72 @@ function organizeGoliathLayout(imageSrc = GOLIATH_MAP_SRC) {
   if (!mapCard) {
     mapCard = document.createElement('section');
     mapCard.id = 'goliath-map-card';
-    mapCard.className = 'circuit-map-card hide-in-obs';
+    mapCard.className = 'circuit-map-card';
     mapCard.innerHTML = `
       <img src="${escapeHtml(imageSrc)}" alt="Mapa del circuito The Goliath - 85.4 km" loading="lazy" />
-      <div class="circuit-map-info">
-        <h3>Circuito Oficial: The Goliath (85.4 km)</h3>
-        <p>
-          Vuelta completa al perímetro del mapa. Tramos de máxima velocidad punta combinados con zonas técnicas donde la estabilidad y la gestión de rebobinados (máx. 3) marcan la diferencia.
-        </p>
-      </div>
     `;
   }
 
-  let topGrid = document.getElementById('goliath-top-grid');
-  if (kpiContainer) {
-    const hostParent = kpiContainer.parentElement || document.body;
+  let mapInfo = document.getElementById('goliath-map-info');
+  if (!mapInfo) {
+    mapInfo = document.createElement('div');
+    mapInfo.id = 'goliath-map-info';
+    mapInfo.className = 'circuit-map-info';
+    mapInfo.innerHTML = `
+      <h3>Circuito Oficial: The Goliath (85.4 km)</h3>
+      <p>
+        Vuelta completa al perímetro del mapa. Tramos de máxima velocidad punta combinados con zonas técnicas donde la estabilidad y la gestión de rebobinados (máx. 3) marcan la diferencia.
+      </p>
+    `;
+  }
+
+  const anchorCard = totalCard || bestCard || worstCard;
+  if (anchorCard && anchorCard.parentElement) {
+    const hostParent = anchorCard.parentElement;
+
+    let topGrid = document.getElementById('goliath-top-grid');
     if (!topGrid) {
       topGrid = document.createElement('div');
       topGrid.id = 'goliath-top-grid';
       topGrid.className = 'goliath-top-grid hide-in-obs';
-      hostParent.insertBefore(topGrid, kpiContainer);
+      hostParent.insertBefore(topGrid, anchorCard);
     }
 
-    kpiContainer.classList.add('goliath-kpis-stack');
-    topGrid.appendChild(mapCard);
-    topGrid.appendChild(kpiContainer);
+    let leftCol = document.getElementById('goliath-left-col');
+    if (!leftCol) {
+      leftCol = document.createElement('div');
+      leftCol.id = 'goliath-left-col';
+      leftCol.className = 'goliath-left-col';
+    }
+
+    let rightCol = document.getElementById('goliath-right-col');
+    if (!rightCol) {
+      rightCol = document.createElement('div');
+      rightCol.id = 'goliath-right-col';
+      rightCol.className = 'goliath-right-col';
+    }
+
+    let kpisGrid = document.getElementById('goliath-kpis-grid');
+    if (!kpisGrid) {
+      kpisGrid = document.createElement('div');
+      kpisGrid.id = 'goliath-kpis-grid';
+      kpisGrid.className = 'goliath-kpis-grid';
+    }
+
+    leftCol.appendChild(mapCard);
+    leftCol.appendChild(mapInfo);
+
+    if (totalCard) {
+      totalCard.classList.add('goliath-kpi-featured');
+      kpisGrid.appendChild(totalCard);
+    }
+    if (bestCard) kpisGrid.appendChild(bestCard);
+    if (worstCard) kpisGrid.appendChild(worstCard);
+
+    rightCol.appendChild(kpisGrid);
+
+    topGrid.appendChild(leftCol);
+    topGrid.appendChild(rightCol);
 
     if (filterBar) {
       filterBar.classList.add('goliath-filter-bar');
@@ -488,16 +528,6 @@ function organizeGoliathLayout(imageSrc = GOLIATH_MAP_SRC) {
         tableArea.parentElement.insertBefore(filterBar, tableArea);
       } else if (topGrid.nextSibling) {
         topGrid.parentNode.insertBefore(filterBar, topGrid.nextSibling);
-      }
-    }
-  } else {
-    const container = document.getElementById('leaderboard-container');
-    const targetParent = container ? container.parentElement : document.body;
-    if (targetParent && !mapCard.parentElement) {
-      if (container) {
-        targetParent.insertBefore(mapCard, container);
-      } else {
-        targetParent.prepend(mapCard);
       }
     }
   }
