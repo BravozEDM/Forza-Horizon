@@ -409,34 +409,103 @@ function initTableScrollWrapper() {
   wrapper.appendChild(table);
 }
 
-function injectGoliathMapCard(imageSrc = GOLIATH_MAP_SRC) {
-  const container = document.getElementById('leaderboard-container');
-  const targetParent = container ? container.parentElement : document.body;
-  if (!targetParent || document.getElementById('goliath-map-card')) return;
+function findKpiGroupContainer(bestEl, worstEl, totalEl) {
+  if (!bestEl) return null;
+  const targets = [bestEl, worstEl, totalEl].filter(Boolean);
+  let curr = bestEl.parentElement;
+  while (curr && curr !== document.body) {
+    if (targets.every(el => curr.contains(el))) {
+      const hasNonKpiText = Array.from(curr.children).some(child => {
+        if (child.contains(bestEl) || child.contains(worstEl) || child.contains(totalEl)) return false;
+        const txt = (child.textContent || '').toUpperCase();
+        return txt.includes('BUSCAR') || txt.includes('TODOS') || child.querySelector('table');
+      });
+      if (!hasNonKpiText) return curr;
+    }
+    curr = curr.parentElement;
+  }
+  return bestEl.closest('div[class*="grid"]')?.parentElement || bestEl.parentElement;
+}
 
-  const card = document.createElement('section');
-  card.id = 'goliath-map-card';
-  card.className = 'circuit-map-card hide-in-obs';
-  card.innerHTML = `
-    <img src="${escapeHtml(imageSrc)}" alt="Mapa del circuito The Goliath - 85.4 km" loading="lazy" />
-    <div class="circuit-map-info">
-      <h3>Circuito Oficial: The Goliath (85.4 km)</h3>
-      <p>
-        Vuelta completa al perímetro del mapa. Tramos de máxima velocidad punta combinados con zonas técnicas donde la estabilidad y la gestión de rebobinados (máx. 3) marcan la diferencia.
-      </p>
-    </div>
-  `;
+function findFilterBarContainer() {
+  const searchInput = document.getElementById('search-input');
+  if (!searchInput) return null;
+  let curr = searchInput.parentElement;
+  while (curr && curr !== document.body && curr.parentElement) {
+    const txt = (curr.textContent || '').toLowerCase();
+    if (txt.includes('todos') && txt.includes('completados') && txt.includes('pendientes') && !curr.querySelector('table')) {
+      return curr;
+    }
+    curr = curr.parentElement;
+  }
+  return searchInput.parentElement;
+}
 
-  if (container) {
-    targetParent.insertBefore(card, container);
+function organizeGoliathLayout(imageSrc = GOLIATH_MAP_SRC) {
+  const bestEl = document.getElementById('kpi-best-time');
+  const worstEl = document.getElementById('kpi-worst-time');
+  const totalEl = document.getElementById('kpi-total-cars');
+
+  const kpiContainer = findKpiGroupContainer(bestEl, worstEl, totalEl);
+  const filterBar = findFilterBarContainer();
+  const tbody = document.getElementById('leaderboard-body');
+  const table = tbody ? tbody.closest('table') : null;
+  const tableArea = table ? (table.closest('.table-scroll-wrapper') || table) : null;
+
+  let mapCard = document.getElementById('goliath-map-card');
+  if (!mapCard) {
+    mapCard = document.createElement('section');
+    mapCard.id = 'goliath-map-card';
+    mapCard.className = 'circuit-map-card hide-in-obs';
+    mapCard.innerHTML = `
+      <img src="${escapeHtml(imageSrc)}" alt="Mapa del circuito The Goliath - 85.4 km" loading="lazy" />
+      <div class="circuit-map-info">
+        <h3>Circuito Oficial: The Goliath (85.4 km)</h3>
+        <p>
+          Vuelta completa al perímetro del mapa. Tramos de máxima velocidad punta combinados con zonas técnicas donde la estabilidad y la gestión de rebobinados (máx. 3) marcan la diferencia.
+        </p>
+      </div>
+    `;
+  }
+
+  let topGrid = document.getElementById('goliath-top-grid');
+  if (kpiContainer) {
+    const hostParent = kpiContainer.parentElement || document.body;
+    if (!topGrid) {
+      topGrid = document.createElement('div');
+      topGrid.id = 'goliath-top-grid';
+      topGrid.className = 'goliath-top-grid hide-in-obs';
+      hostParent.insertBefore(topGrid, kpiContainer);
+    }
+
+    kpiContainer.classList.add('goliath-kpis-stack');
+    topGrid.appendChild(mapCard);
+    topGrid.appendChild(kpiContainer);
+
+    if (filterBar) {
+      filterBar.classList.add('goliath-filter-bar');
+      if (tableArea && tableArea.parentElement) {
+        tableArea.parentElement.insertBefore(filterBar, tableArea);
+      } else if (topGrid.nextSibling) {
+        topGrid.parentNode.insertBefore(filterBar, topGrid.nextSibling);
+      }
+    }
   } else {
-    targetParent.prepend(card);
+    const container = document.getElementById('leaderboard-container');
+    const targetParent = container ? container.parentElement : document.body;
+    if (targetParent && !mapCard.parentElement) {
+      if (container) {
+        targetParent.insertBefore(mapCard, container);
+      } else {
+        targetParent.prepend(mapCard);
+      }
+    }
   }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
   initTableScrollWrapper();
-  injectGoliathMapCard();
+  organizeGoliathLayout();
 
   const params = new URLSearchParams(window.location.search);
   if (params.get('admin') === ADMIN_SECRET_KEY) {
